@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IQRA Entrance Examination System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-light {
+            background-color: white;
+            color: #007bff;
+        }
+        .btn-light:hover {
+            background-color: #f8f9fa;
+        }
+        .jumbotron {
+            background: linear-gradient(135deg, #007bff, #00bfff);
+            color: white;
+            padding: 100px 0;
+            margin-bottom: 0;
+        }
+        .jumbotron h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        .jumbotron p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+        .section-features {
+            background-color: #f8f9fa;
+            padding: 80px 0;
+        }
+        .section-features .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .section-features .col-md-4 {
+            flex-basis: calc(33.333% - 30px);
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .section-features .col-md-4:hover {
+            transform: translateY(-10px);
+        }
+        .section-features i {
+            font-size: 3rem;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        .section-testimonials {
+            background-color: #f2f2f2;
+            padding: 80px 0;
+        }
+        .section-testimonials .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .section-testimonials .col-md-4 {
+            flex-basis: calc(33.333% - 30px);
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .section-call-to-action {
+            background-color: #007bff;
+            color: white;
+            padding: 80px 0;
+        }
+        @media (max-width: 768px) {
+            .section-features .col-md-4,
+            .section-testimonials .col-md-4 {
+                flex-basis: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include "exam/navbar.html" %}
+
+    <section id="section-jumbotron" class="jumbotron">
+        <div class="container text-center">
+            <h2>Welcome to the IQRA Entrance Examination System</h2>
+            <p class="d-none d-sm-block">Start your journey to success!</p>
+            <p>Sign Up now to start your first online examination</p>
+            <p><strong>Get Started Here:</strong></p>
+            <a href="/student/studentsignup" class="btn btn-light">
+                <i class="fas fa-graduation-cap"></i> Sign Up as Student
+            </a>
+        </div>  
+    </section>
+
+    <section id="section-features" class="section-features">
+        <div class="container text-center">
+            <h2>Unlock Your Learning Potential</h2>
+            <p>Explore our features and take the first step towards your academic success.</p>
+            <div class="row">
+                <div class="col-md-4">
+                    <i class="fas fa-lock"></i>
+                    <h3>Secure Exams</h3>
+                    <p>Our system ensures a secure and fair examination environment.</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="fas fa-book"></i>
+                    <h3>Comprehensive Study Materials</h3>
+                    <p>Access a wide range of study materials tailored to your needs.</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Track Your Progress</h3>
+                    <p>Monitor your performance and identify areas for improvement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-testimonials" class="section-testimonials">
+        <div class="container text-center" style="margin-top:1rem;">
+            <h2>What Our Students Say</h2>
+            <p>Don't just take our word for it. Hear from our satisfied students.</p>
+            <div class="row">
+                <div class="col-md-4">
+                    <p>"IQRA Entrance Examination System has been instrumental in my academic success. The resources provided are invaluable."</p>
+                    <p><strong>John Doe</strong>, Student</p>
+                </div>
+                <div class="col-md-4">
+                    <p>"The system's user-friendly interface and comprehensive study materials made my exam preparation a breeze."</p>
+                    <p><strong>Jane Smith</strong>, Student</p>
+                </div>
+                <div class="col-md-4">
+                    <p>"I was able to track my progress and identify areas where I needed improvement, thanks to the system's analytics."</p>
+                    <p><strong>Michael Johnson</strong>, Student</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-call-to-action" class="section-call-to-action">
+        <div class="container text-center">
+            <h2>Ready to Get Started?</h2>
+            <p>Sign up now and begin your journey to academic success.</p>
+            <a href="/student/studentsignup" class="btn btn-light">
+                <i class="fas fa-graduation-cap"></i> Sign Up as Student
+            </a>
+        </div>
+    </section>
+
+    {% include "exam/footer.html" %}
+</body>
+</html>
