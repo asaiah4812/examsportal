@@ -1,85 +1,562 @@
 {% extends 'student/studentbase.html' %}
 {% block content %}
-{%load static%}
+{% load static %}
 
-<head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<div class="bg-gray-100 text-gray-800 overflow-hidden" x-data="examInterface()" x-init="init()">
+    <!-- Exam Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-50">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-book text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-900">{{course.course_name}}</h1>
+                    <p class="text-sm text-gray-500">Exam in Progress</p>
+                </div>
+            </div>
 
+            <div class="flex items-center space-x-6">
+                <div class="text-center">
+                    <p class="text-sm text-gray-500">Time Remaining</p>
+                    <p class="text-xl font-bold" 
+                       :class="timeRemaining <= 300 ? 'text-red-600' : 'text-gray-900'"
+                       x-text="formatTime(timeRemaining)"></p>
+                </div>
+                
+                <div class="text-center">
+                    <p class="text-sm text-gray-500">Progress</p>
+                    <p class="text-lg font-semibold text-gray-900">
+                        <span x-text="answeredCount"></span>/<span>{{ questions|length }}</span>
+                    </p>
+                </div>
 
-</head>
+                <button 
+                    @click="showSubmitModal = true"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                    Submit Exam
+                </button>
+            </div>
+        </div>
 
+        <div class="mt-4">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" 
+                     :style="'width: ' + (totalQuestions ? (answeredCount / totalQuestions * 100) : 0) + '%'">
+                </div>
+            </div>
+        </div>
+    </header>
 
-<div class="jumbotron my-4">
+    <div class="flex h-screen pt-0">
+        <!-- Question Navigation Sidebar -->
+        <div class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+            <div class="p-4 border-b border-gray-700">
+                <h2 class="font-semibold text-white">Questions</h2>
+                <p class="text-sm text-gray-400">Click to navigate</p>
+            </div>
+            
+            <div class="flex-1 p-4 overflow-y-auto">
+                <div class="grid grid-cols-5 gap-2">
+                    {% for q in questions %}
+                    <button 
+                        @click="currentQuestion = {{ forloop.counter0 }}"
+                        class="w-10 h-10 rounded-lg text-sm font-semibold transition-colors"
+                        :class="{
+                            'bg-indigo-600 text-white': currentQuestion === {{ forloop.counter0 }},
+                            'bg-green-500 text-white': answers[{{ forloop.counter0 }}] !== null && currentQuestion !== {{ forloop.counter0 }},
+                            'bg-yellow-400 text-yellow-900': reviewMarked[{{ forloop.counter0 }}] && answers[{{ forloop.counter0 }}] === null,
+                            'bg-gray-600 text-gray-300 hover:bg-gray-500': answers[{{ forloop.counter0 }}] === null && !reviewMarked[{{ forloop.counter0 }}] && currentQuestion !== {{ forloop.counter0 }}
+                        }">
+                        <span>{{ forloop.counter }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
 
-  <form class="form" autocomplete="off" onsubmit="return saveAns()"  action="/student/calculate-marks" method="POST">
-    {% csrf_token %}
-    <h2 style="text-align: center;">Course: {{course.course_name}}</h2>
-    {% for q in questions%}
-    <h3 class="text-danger">{{ forloop.counter }}. {{q.question}}</h3><h4 style="text-align: right;">[{{q.marks}} Marks]</h4>
-    
-        <input type="hidden" name="csrfmiddlewaretoken" value="C24rUotmdHawVQJL3KrqiWxvti8UffOFYUc8TRbZtLt36AVLdP3jbkzUVe3beRAa">
-        
-        
-          <div class="form-check mx-4">
-            <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.option1}}" value="Option1">
-            <label class="form-check-label" for="option1">
-              {{q.option1}}
-            </label>
-          </div>
+            <div class="p-4 border-t border-gray-700">
+                <div class="space-y-2 text-xs text-gray-300">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-indigo-600 rounded"></div>
+                        <span>Current</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-green-500 rounded"></div>
+                        <span>Answered</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-yellow-400 rounded"></div>
+                        <span>Review</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-gray-600 border border-gray-500 rounded"></div>
+                        <span>Not Answered</span>
+                    </div>
+                </div>
+                
+                <!-- Keyboard Shortcuts Help -->
+                <div class="mt-4 pt-4 border-t border-gray-600">
+                    <div class="text-xs text-gray-400 mb-2 font-medium">Keyboard Shortcuts:</div>
+                    <div class="space-y-1 text-xs text-gray-300">
+                        <div><span class="text-yellow-400">A,B,C,D</span> - Select answer</div>
+                        <div><span class="text-yellow-400">1,2,3,4</span> - Select answer</div>
+                        <div><span class="text-yellow-400">→</span> or <span class="text-yellow-400">Space</span> - Next</div>
+                        <div><span class="text-yellow-400">←</span> - Previous</div>
+                        <div><span class="text-yellow-400">Enter</span> - Submit (last question)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        
-          <div class="form-check mx-4">
-            <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.option2}}" value="Option2">
-            <label class="form-check-label" for="option2">
-              {{q.option2}}
-            </label>
-          </div>
+        <!-- Main Exam Content -->
+        <div class="flex-1 flex flex-col">
+            <main class="flex-1 p-8 overflow-y-auto exam-content">
+                <div class="max-w-4xl mx-auto">
+                    <!-- Empty State When No Questions -->
+                    <div x-show="totalQuestions === 0" class="mb-6" style="display: none;">
+                        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-6 py-4 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-info-circle mr-3"></i>
+                                <div>
+                                    <p class="font-semibold">No questions available for this exam.</p>
+                                    <p class="text-sm mt-1">Please contact your instructor or choose a different exam.</p>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <a href="/student/student-exam" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                                    <i class="fas fa-arrow-left mr-2"></i> Back to Exams
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Question Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8" x-show="totalQuestions > 0" style="display: none;">
+                        <!-- Question Header -->
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm font-semibold">
+                                    Question <span x-text="currentQuestion + 1"></span>
+                                </span>
+                                <span class="text-gray-500 text-sm">
+                                    of <span>{{ questions|length }}</span>
+                                </span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-gray-500">Marks:</span>
+                                <span class="bg-gray-100 px-2 py-1 rounded text-sm font-medium" x-text="getQuestionMarks()"></span>
+                            </div>
+                        </div>
 
-        
-          <div class="form-check mx-4">
-            <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.option3}}" value="Option3">
-            <label class="form-check-label" for="option3">
-              {{q.option3}}
-            </label>
-          </div>
+                        <!-- Question Text -->
+                        <div class="mb-8">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4 leading-relaxed" x-html="getQuestionText()"></h2>
+                        </div>
 
-        
-          <div class="form-check mx-4">
-            <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.option4}}" value="Option4">
-            <label class="form-check-label" for="option4">
-              {{q.option4}}
-            </label>
-          </div>
+                        <!-- Answer Options -->
+                        <div class="space-y-4">
+                            <template x-for="(option, index) in getQuestionOptions()" :key="index">
+                                <label class="flex items-start space-x-4 p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                                       :class="{'border-indigo-500 bg-indigo-50': answers[currentQuestion] === index}">
+                                    <input 
+                                        type="radio" 
+                                        :name="'question_' + currentQuestion"
+                                        :value="index"
+                                        x-model="answers[currentQuestion]"
+                                        @change="saveAnswer(currentQuestion, index)"
+                                        class="mt-1 text-indigo-600 focus:ring-indigo-500">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-semibold"
+                                                  :class="{'bg-indigo-600 text-white': answers[currentQuestion] === index}">
+                                                <span x-text="String.fromCharCode(65 + index)"></span>
+                                            </span>
+                                            <span class="text-gray-900" x-text="option"></span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </template>
+                        </div>
 
+                        <!-- Question Actions -->
+                        <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+                            <button 
+                                @click="currentQuestion--"
+                                :disabled="currentQuestion === 0"
+                                class="flex items-center space-x-2 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                <i class="fas fa-arrow-left text-sm"></i>
+                                <span>Previous</span>
+                            </button>
+
+                            <div class="flex items-center space-x-4">
+                                <button 
+                                    @click="clearAnswer()"
+                                    class="px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors">
+                                    Clear Answer
+                                </button>
+                                <button 
+                                    @click="markForReview()"
+                                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                    :class="{'bg-yellow-100 border-yellow-300 text-yellow-800': reviewMarked[currentQuestion]}">
+                                    <span x-text="reviewMarked[currentQuestion] ? 'Marked for Review' : 'Mark for Review'"></span>
+                                </button>
+                            </div>
+
+                            <button 
+                                @click="nextQuestion()"
+                                :disabled="currentQuestion === {{ questions|length }} - 1"
+                                class="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                <span>Next</span>
+                                <i class="fas fa-arrow-right text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Submit Confirmation Modal -->
+    <div x-show="showSubmitModal" class="fixed inset-0 z-50 flex items-center justify-center" style="display: none;">
+        <div class="fixed inset-0 bg-black/50" @click="showSubmitModal = false"></div>
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 relative z-10">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-indigo-600 text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Submit Exam?</h3>
+                <p class="text-gray-500 mb-6">Are you sure you want to submit your exam? This action cannot be undone.</p>
+                
+                <div class="bg-gray-100 p-4 rounded-lg mb-6 text-left">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div><span class="text-gray-500">Total Questions:</span><span class="font-semibold ml-2">{{ questions|length }}</span></div>
+                        <div><span class="text-gray-500">Answered:</span><span class="font-semibold ml-2" x-text="answeredCount"></span></div>
+                        <div><span class="text-gray-500">Unanswered:</span><span class="font-semibold ml-2" x-text="{{ questions|length }} - answeredCount"></span></div>
+                        <div><span class="text-gray-500">Time Left:</span><span class="font-semibold ml-2" x-text="formatTime(timeRemaining)"></span></div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button @click="showSubmitModal = false" class="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Continue Exam</button>
+                    <button @click="submitExam()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">Submit Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Warning Modal -->
+    <div x-show="showTimeWarning" class="fixed inset-0 z-50 flex items-center justify-center" style="display: none;">
+        <div class="fixed inset-0 bg-red-900/50"></div>
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 relative z-10">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-clock text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-red-900 mb-2">Time Warning!</h3>
+                <p class="text-red-700 mb-6">Only 5 minutes remaining! Please complete your exam soon.</p>
+                <button @click="showTimeWarning = false" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Feedback Toast -->
+    <div x-show="showKeyFeedback" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform translate-y-2"
+         x-transition:enter-end="opacity-100 transform translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-y-0"
+         x-transition:leave-end="opacity-0 transform translate-y-2"
+         class="fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg font-medium"
+         style="display: none;">
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-check-circle"></i>
+            <span x-text="keyFeedbackText"></span>
+        </div>
+    </div>
+
+    <!-- Hidden Form for Submission -->
+    <form id="examForm" action="{% url 'calculate-marks' %}" method="POST" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="course_id" value="{{ course.id }}">
+        {% for q in questions %}
+        <input type="hidden" name="question{{q.id}}" id="answer{{q.id}}" value="">
         {% endfor %}
-        <input class="btn btn-success btn-lg" style="border-radius: 0%;"  type="submit" value="Submit Answers">  
     </form>
-  </div>
 
-<script> 
-    function saveAns(){  
+    <script>
+        function examInterface() {
+            return {
+                currentQuestion: 0,
+                answers: Array({{ questions|length }}).fill(null),
+                reviewMarked: Array({{ questions|length }}).fill(false),
+                timeRemaining: {{ total_marks }} * 60, // 1 minute per mark
+                showSubmitModal: false,
+                showTimeWarning: false,
+                timerInterval: null,
+                examSubmitted: false,
+                showKeyFeedback: false,
+                keyFeedbackText: '',
+                
+                // Store questions data
+                questionsData: [
+                    {% for q in questions %}
+                    {
+                        id: {{ q.id }},
+                        text: "{{ q.question|escapejs }}",
+                        marks: {{ q.marks }},
+                        options: [
+                            "{{ q.option1|escapejs }}",
+                            "{{ q.option2|escapejs }}",
+                            "{{ q.option3|escapejs }}",
+                            "{{ q.option4|escapejs }}"
+                        ]
+                    }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                
+                get totalQuestions() {
+                    return Array.isArray(this.questionsData) ? this.questionsData.length : 0;
+                },
+                
+                init() {
+                    this.startTimer();
+                    this.loadSavedAnswers();
+                    
+                    window.addEventListener('beforeunload', (e) => {
+                        if (this.timeRemaining > 0 && !this.examSubmitted) {
+                            e.preventDefault();
+                            e.returnValue = 'Are you sure you want to leave? Your exam progress will be lost.';
+                        }
+                    });
 
-        var ele = document.getElementsByTagName('input'); 
-        for(i = 0; i < ele.length; i++) { 
-            if(ele[i].type="radio") { 
-                if(ele[i].checked){        
-                  setCookie(ele[i].name,ele[i].value,3)
+                    // Disable right-click context menu
+                    document.addEventListener('contextmenu', function(e) {
+                        e.preventDefault();
+                    });
+
+                    // Handle keyboard navigation and answer selection
+                    document.addEventListener('keydown', (e) => {
+                        // Allow A, B, C, D for answer selection
+                        if (['a', 'A', 'b', 'B', 'c', 'C', 'd', 'D'].includes(e.key)) {
+                            e.preventDefault();
+                            const answerIndex = ['a', 'A'].includes(e.key) ? 0 : 
+                                              ['b', 'B'].includes(e.key) ? 1 : 
+                                              ['c', 'C'].includes(e.key) ? 2 : 3;
+                            this.saveAnswer(this.currentQuestion, answerIndex);
+                            this.showKeyFeedback(`Selected Option ${String.fromCharCode(65 + answerIndex)}`);
+                            return;
+                        }
+                        
+                        // Arrow keys for navigation
+                        if (e.key === 'ArrowRight' || e.key === ' ') {
+                            e.preventDefault();
+                            this.nextQuestion();
+                            this.showKeyFeedback('Next Question');
+                            return;
+                        }
+                        
+                        if (e.key === 'ArrowLeft') {
+                            e.preventDefault();
+                            if (this.currentQuestion > 0) {
+                                this.currentQuestion--;
+                                this.showKeyFeedback('Previous Question');
+                            }
+                            return;
+                        }
+                        
+                        // Number keys 1-4 for answer selection
+                        if (['1', '2', '3', '4'].includes(e.key)) {
+                            e.preventDefault();
+                            const answerIndex = parseInt(e.key) - 1;
+                            this.saveAnswer(this.currentQuestion, answerIndex);
+                            this.showKeyFeedback(`Selected Option ${String.fromCharCode(65 + answerIndex)}`);
+                            return;
+                        }
+                        
+                        // Enter key to submit (only on last question)
+                        if (e.key === 'Enter' && this.currentQuestion === {{ questions|length }} - 1) {
+                            e.preventDefault();
+                            this.showSubmitModal = true;
+                            return;
+                        }
+
+                    // Disable common keyboard shortcuts
+                        if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'a' || e.key === 's' || e.key === 'r' || e.key === 'f')) {
+                            e.preventDefault();
+                        }
+                        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                            e.preventDefault();
+                        }
+                    });
+                },
+                
+                startTimer() {
+                    this.timerInterval = setInterval(() => {
+                        this.timeRemaining--;
+                        if (this.timeRemaining === 300 && !this.showTimeWarning) {
+                            this.showTimeWarning = true;
+                        }
+                        if (this.timeRemaining <= 0) {
+                            this.submitExam();
+                        }
+                    }, 1000);
+                },
+                
+                formatTime(seconds) {
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    const secs = seconds % 60;
+                    
+                    if (hours > 0) {
+                        return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    }
+                    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+                },
+                
+                get answeredCount() {
+                    return this.answers.filter(answer => answer !== null).length;
+                },
+                
+                getQuestionText() {
+                    return this.questionsData[this.currentQuestion]?.text || '';
+                },
+                
+                getQuestionMarks() {
+                    return (this.questionsData[this.currentQuestion]?.marks || 0) + ' pts';
+                },
+                
+                getQuestionOptions() {
+                    return this.questionsData[this.currentQuestion]?.options || [];
+                },
+                
+                saveAnswer(questionIndex, answerIndex) {
+                    this.answers[questionIndex] = answerIndex;
+                    if (this.questionsData && this.questionsData[questionIndex]) {
+                        const questionId = this.questionsData[questionIndex].id;
+                        const answerValue = this.getAnswerValue(answerIndex);
+                        const inputElement = document.getElementById(`answer${questionId}`);
+                        if (inputElement) {
+                            inputElement.value = answerValue;
+                        }
+                    }
+                    
+                    // Show visual feedback for keyboard selection
+                    this.showAnswerFeedback(answerIndex);
+                },
+                
+                showAnswerFeedback(answerIndex) {
+                    // Find the current question's option labels and highlight the selected one
+                    const optionLabels = document.querySelectorAll(`[data-question="${this.currentQuestion}"] label`);
+                    if (optionLabels[answerIndex]) {
+                        // Add a brief highlight effect
+                        optionLabels[answerIndex].classList.add('ring-2', 'ring-green-400', 'bg-green-50');
+                        setTimeout(() => {
+                            optionLabels[answerIndex].classList.remove('ring-2', 'ring-green-400', 'bg-green-50');
+                        }, 300);
+                    }
+                },
+                
+                showKeyFeedback(text) {
+                    this.keyFeedbackText = text;
+                    this.showKeyFeedback = true;
+                    setTimeout(() => {
+                        this.showKeyFeedback = false;
+                    }, 1000);
+                },
+                
+                clearAnswer() {
+                    this.answers[this.currentQuestion] = null;
+                    if (this.questionsData && this.questionsData[this.currentQuestion]) {
+                        const questionId = this.questionsData[this.currentQuestion].id;
+                        const inputElement = document.getElementById(`answer${questionId}`);
+                        if (inputElement) {
+                            inputElement.value = '';
+                        }
+                    }
+                },
+                
+                markForReview() {
+                    this.reviewMarked[this.currentQuestion] = !this.reviewMarked[this.currentQuestion];
+                },
+                
+                nextQuestion() {
+                    if (this.currentQuestion < {{ questions|length }} - 1) {
+                        this.currentQuestion++;
+                    }
+                },
+                
+                getAnswerValue(answerIndex) {
+                    if (answerIndex === null || answerIndex === undefined) return '';
+                    return ['Option1', 'Option2', 'Option3', 'Option4'][answerIndex] || '';
+                },
+                
+                loadSavedAnswers() {
+                    // Load from localStorage if available
+                    const savedAnswers = localStorage.getItem('exam_answers_{{ course.id }}');
+                    if (savedAnswers) {
+                        try {
+                            const parsed = JSON.parse(savedAnswers);
+                            this.answers = parsed.answers || Array({{ questions|length }}).fill(null);
+                            this.reviewMarked = parsed.reviewMarked || Array({{ questions|length }}).fill(false);
+                            
+                            // Update form inputs
+                            this.answers.forEach((answer, index) => {
+                                if (answer !== null) {
+                                    const questionId = this.questionsData[index].id;
+                                    const answerValue = this.getAnswerValue(answer);
+                                    document.getElementById(`answer${questionId}`).value = answerValue;
+                                }
+                            });
+                        } catch (e) {
+                            console.error('Error loading saved answers:', e);
+                        }
+                    }
+                },
+                
+                saveToLocalStorage() {
+                    const examData = {
+                        answers: this.answers,
+                        reviewMarked: this.reviewMarked,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem('exam_answers_{{ course.id }}', JSON.stringify(examData));
+                },
+                
+                submitExam() {
+                    if (this.examSubmitted) return;
+                    
+                    this.examSubmitted = true;
+                    clearInterval(this.timerInterval);
+                    
+                    // Update all form inputs before submission
+                    this.answers.forEach((answer, index) => {
+                        if (answer !== null) {
+                            const questionId = this.questionsData[index].id;
+                            const answerValue = this.getAnswerValue(answer);
+                            document.getElementById(`answer${questionId}`).value = answerValue;
+                        }
+                    });
+                    
+                    // Clear saved answers
+                    localStorage.removeItem('exam_answers_{{ course.id }}');
+                    
+                    // Submit form
+                    document.getElementById('examForm').submit();
                 }
-            } 
-        } 
-          
-    }
-    
-    function setCookie(cname, cvalue, exdays) {
-  var d = new Date();
-  d.setTime(d.getTime() + (exdays*24*60*60*1000));
-  var expires = "expires="+ d.toUTCString();
-  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
+            }
+        }
 
-</script> 
+        // Save answers periodically
+        setInterval(() => {
+            const app = Alpine.store || window.Alpine;
+            if (app) {
+                const examApp = document.querySelector('[x-data="examInterface()"]');
+                if (examApp && examApp._x_dataStack && examApp._x_dataStack[0]) {
+                    examApp._x_dataStack[0].saveToLocalStorage();
+                }
+            }
+        }, 30000); // Save every 30 seconds
+    </script>
+    </div>
 
-<br><br><br><br><br><br>
 {% endblock content %}

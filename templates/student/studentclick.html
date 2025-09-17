@@ -1,42 +1,64 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+
 {% load static %}
-<html lang="en" dir="ltr">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% block content %}
+    
+    <div class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-graduate text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Hello Student!</h1>
+                <p class="text-gray-600">Welcome to the EduTest Examination System</p>
+            </div>
 
-  <style media="screen">
-    .jumbotron {
-      margin-top: 0px;
-      margin-bottom: 0px;
-    }
+            <div class="space-y-4 mb-8">
+                <div class="flex items-center p-4 bg-blue-50 rounded-lg">
+                    <i class="fas fa-laptop text-blue-600 text-xl mr-4"></i>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Online Exams</h3>
+                        <p class="text-sm text-gray-600">Take exams from anywhere</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-green-50 rounded-lg">
+                    <i class="fas fa-chart-bar text-green-600 text-xl mr-4"></i>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Instant Results</h3>
+                        <p class="text-sm text-gray-600">Get scores immediately</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-purple-50 rounded-lg">
+                    <i class="fas fa-clock text-purple-600 text-xl mr-4"></i>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Flexible Timing</h3>
+                        <p class="text-sm text-gray-600">Study at your own pace</p>
+                    </div>
+                </div>
+            </div>
 
-    .jumbotron h1 {
-      text-align: center;
-    }
+            <div class="space-y-4">
+                <a href="studentsignup" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors inline-block text-center">
+                    <i class="fas fa-user-plus mr-2"></i> Create Account
+                </a>
+                
+                <a href="studentlogin" class="w-full bg-white hover:bg-gray-50 text-indigo-600 border border-indigo-600 py-3 px-6 rounded-lg font-semibold transition-colors inline-block text-center">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Login Now
+                </a>
+            </div>
 
-  </style>
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-info-circle text-gray-600 mr-3"></i>
+                    <p class="text-sm text-gray-600">
+                        New to the platform? Create an account to get started with your exams.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-</head>
-
-<body>
-
-  {% include "exam/navbar.html" %}
-  <br><br>
-  <div class="jumbotron" style="margin-bottom:0px;">
-    <h1 class="display-4">Hello Student,</h1>
-    <p class="lead">and Welcome to Online Examination System</p>
-    <hr class="my-4">
-    <p>Select any of them to access into the system</p>
-    <p class="lead">
-      <a class="btn btn-primary " href="studentsignup" style="border-radius: 0%;" role="button">Create Your Account</a>
-      <a class="btn btn-success " href="studentlogin" style="border-radius: 0%;" role="button">Login Now</a>
-    </p>
-    <br><br><br><br><br><br>
-  </div>
- 
-  {% include "exam/footer.html" %}
-</body>
-
-</html>
+    {% endblock %}

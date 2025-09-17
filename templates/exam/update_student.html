@@ -1,65 +1,71 @@
 {% extends 'exam/adminbase.html' %}
 {% load widget_tweaks %}
 {% block content %}
-<head>
-  <style media="screen">
-    input[type=text], select,input[type=number] ,input[type=password], textarea{
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
 
-  input[type=submit] {
-    width: 100%;
-    background-color: #4CAF50;
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  input[type=submit]:hover {
-    background-color: #45a049;
-  }
-
-
-  </style>
-
-
-</head>
-
-<br><br>
-<h2 style="text-align:center;">Update Student</h2>
-<div>
-  <form method="post" autocomplete="off" enctype="multipart/form-data" style="margin-left:200px;margin-right:200px;">
-      {% csrf_token %}
-        <label for="first_name">First Name</label>
-        {% render_field userForm.first_name class="form-control" placeholder="First Name" %}
-        <label for="last_name">Last Name</label>
-        {% render_field userForm.last_name class="form-control" placeholder="Last Name" %}
-          <label for="mobile">Contact</label>
-          {% render_field studentForm.mobile class="form-control" placeholder="Mobile" %}
-            <label for="address">Address</label>
-          {% render_field studentForm.address class="form-control" placeholder="Address" %}
-          
-        <label for="username">Username</label>
-        {% render_field userForm.username class="form-control" placeholder="Username" %}
-          <label for="password">Password</label>
-        {% render_field userForm.password class="form-control" placeholder="Password" %} <br><br>
-        <label for="profile_pic">Profile Picture</label>
-          {% render_field studentForm.profile_pic class="form-control" placeholder="Profile Picture" %}
-<br><br>
-    <input type="submit" value="Update" style="border-radius:0px;">
-  </form>
+<div x-show="activeTab === 'student'" class="space-y-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 max-w-2xl mx-auto">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Update Student</h2>
+            <p class="text-gray-500">Edit student account information</p>
+        </div>
+        <div class="p-6">
+            <form method="post" autocomplete="off" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                        {% render_field userForm.first_name class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="First Name" %}
+                    </div>
+                    
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                        {% render_field userForm.last_name class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Last Name" %}
+                    </div>
+                    
+                    <div>
+                        <label for="mobile" class="block text-sm font-medium text-gray-700 mb-2">Contact</label>
+                        {% render_field studentForm.mobile class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Mobile" %}
+                    </div>
+                    
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                        {% render_field studentForm.address class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Address" %}
+                    </div>
+                    <div>
+                        <label for="matric_no" class="block text-sm font-medium text-gray-700 mb-2">Matric Number</label>
+                        {% render_field studentForm.matric_no class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g. CONJ/2025/00123" %}
+                    </div>
+                    
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                        {% render_field userForm.username class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Username" %}
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        {% render_field userForm.password class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Password" %}
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label for="profile_pic" class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+                        {% render_field studentForm.profile_pic class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" %}
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <button type="submit" class="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                        Update Student
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-4">
+                <a href="/admin-student" class="text-indigo-600 hover:text-indigo-900 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Students
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
-
-
-<br><br><br><br><br><br><br><br>
 {% endblock content %}

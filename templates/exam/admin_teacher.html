@@ -2,6 +2,73 @@
 {% load widget_tweaks %}
 {% block content %}
 
+<div x-show="activeTab === 'teacher'" class="space-y-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a href="admin-view-teacher" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Approved Teachers</p>
+                    <p class="text-2xl font-bold text-gray-900">{{total_teacher}}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chalkboard-teacher text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
+
+        <a href="admin-view-pending-teacher" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Pending Teachers</p>
+                    <p class="text-2xl font-bold text-gray-900">{{pending_teacher}}</p>
+                </div>
+                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-sync-alt text-yellow-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
+
+        <a href="admin-view-teacher-salary" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Salary</p>
+                    <p class="text-2xl font-bold text-gray-900">${{salary}}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Teacher Management -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Teacher Management</h2>
+            <p class="text-gray-500">Manage all teacher accounts and permissions</p>
+        </div>
+        <div class="p-6">
+            <div class="flex space-x-4 mb-6">
+                <a href="admin-view-teacher" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    View All Teachers
+                </a>
+                <a href="admin-view-pending-teacher" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+                    Pending Approvals
+                </a>
+                <a href="admin-view-teacher-salary" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    Salary Reports
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+{% comment %} {% extends 'exam/adminbase.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
 
 <head>
     <meta charset="utf-8">
@@ -115,4 +182,4 @@
 <script src="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
 
 
-{% endblock content %}
+{% endblock content %} {% endcomment %}

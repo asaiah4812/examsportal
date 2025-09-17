@@ -1,18 +1,21 @@
 from django.urls import path,include
 from django.contrib import admin
 from exam import views
+from teacher.views import logout
 from django.contrib.auth.views import LogoutView,LoginView
 urlpatterns = [
    
     path('admin/', admin.site.urls),
+    path("__reload__/", include("django_browser_reload.urls")),
     path('teacher/',include('teacher.urls')),
     path('student/',include('student.urls')),
     
 
 
     path('',views.home_view,name=''),
-    path('logout', LogoutView.as_view(template_name='exam/logout.html'),name='logout'),
+    path('logout', logout, name='logout'),
     path('contactus', views.contactus_view),
+    path('check-results', views.check_results_view, name='check-results'),
     path('afterlogin', views.afterlogin_view,name='afterlogin'),
 
 
@@ -44,6 +47,8 @@ urlpatterns = [
 
     path('admin-question', views.admin_question_view,name='admin-question'),
     path('admin-add-question', views.admin_add_question_view,name='admin-add-question'),
+    path('admin-bulk-upload-questions', views.admin_bulk_upload_questions_view, name='admin-bulk-upload-questions'),
+    path('download-sample-questions', views.download_sample_questions_excel, name='download-sample-questions'),
     path('admin-view-question', views.admin_view_question_view,name='admin-view-question'),
     path('view-question/<int:pk>', views.view_question_view,name='view-question'),
     path('delete-question/<int:pk>', views.delete_question_view,name='delete-question'),

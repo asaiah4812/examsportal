@@ -27,7 +27,7 @@ SECRET_KEY = '@k0#p3kidu)yaaa3u1hplxz)f@^6xiy384*(+n@@s5x#1bx@m5'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -43,12 +43,18 @@ INSTALLED_APPS = [
     'teacher',
     'student',
     'widget_tweaks',
-
+    'tailwind',
+     'theme'
 ]
+
+TAILWIND_APP_NAME = 'theme'
+
+NPM_BIN_PATH = 'npm.cmd'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+     "django_browser_reload.middleware.BrowserReloadMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',  # This line was commented out, but it's essential for CSRF protection
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -75,6 +81,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'onlinexam.wsgi.application'
+
+if DEBUG:
+    # Add django_browser_reload only in DEBUG mode
+    INSTALLED_APPS += ['django_browser_reload']
 
 
 # Database
@@ -145,3 +155,5 @@ EMAIL_HOST_PASSWORD = 'ENTER_PASSWORD' # host email password required
 # otherwise you will get SMTPAuthenticationError at /contactus
 # this process is required because google blocks apps authentication by default
 EMAIL_RECEIVING_USER = ['to@gmail.com'] # email on which you will receive messages sent from website
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

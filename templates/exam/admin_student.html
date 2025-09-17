@@ -2,6 +2,59 @@
 {% load widget_tweaks %}
 {% block content %}
 
+<div x-show="activeTab === 'student'" class="space-y-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <a href="admin-view-student" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Registered Students</p>
+                    <p class="text-2xl font-bold text-gray-900">{{total_student}}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-graduate text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
+
+        <a href="admin-view-student-marks" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Student Marks</p>
+                    <p class="text-2xl font-bold text-gray-900">View Reports</p>
+                </div>
+                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-sort-numeric-up text-gray-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Student Management -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Student Management</h2>
+            <p class="text-gray-500">Manage all student accounts and progress</p>
+        </div>
+        <div class="p-6">
+            <div class="flex space-x-4 mb-6">
+                <a href="admin-view-student" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    View All Students
+                </a>
+                <a href="admin-view-student-marks" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                    View Marks
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% comment %} {% extends 'exam/adminbase.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
 
 <head>
     <meta charset="utf-8">
@@ -107,4 +160,4 @@
 <script src="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
 
 
-{% endblock content %}
+{% endblock content %} {% endcomment %}

@@ -2,108 +2,51 @@
 {% load widget_tweaks %}
 {% block content %}
 
+<div x-show="activeTab === 'course'" class="space-y-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <a href="admin-add-course" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Add Course</p>
+                    <p class="text-2xl font-bold text-gray-900">Create New</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-plus text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-    <style type="text/css">
-      a:link {
-        text-decoration: none;
-      }
-  
-      .order-card {
-        color: rgb(255, 255, 255);
-      }
-  
-      .bg-c-blue {
-        background: #04868f;
-      }
-  
-      .bg-c-gtx {
-        background:#57717d;
-      }
-  
-      .bg-c-yellow {
-        background: #F56565;
-      }
-  
-      .bg-c-pink {
-        background: #663a30;
-      }
-  
-  
-      .card {
-        
-        -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
-        box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
-        margin-bottom: 30px;
-        -webkit-transition: all 0.3s ease-in-out;
-        transition: all 0.3s ease-in-out;
-      }
-  
-      .card .card-block {
-        padding: 25px;
-      }
-  
-      .order-card i {
-        font-size: 26px;
-      }
-  
-      .f-left {
-        float: left;
-      }
-  
-      .f-right {
-        float: right;
-      }
-      header {
-      left: 0px;
-      right: 0px;
-    }
-    </style>
-  </head>
-<br><br>
-
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4 col-xl-6">
-        <a href="admin-add-course" style="text-decoration: none;color:white;">
-        <div class="card bg-c-blue order-card">
-          <div class="card-block">
-            <h6 class="m-b-20"> Add Course</h6>
-            <h2 class="text-right"><i class="fas fa-plus f-left"></i></h2>
-          </div>
-        </div>
-      </a>
-      </div>
-  
-      <div class="col-md-4 col-xl-6">
-        <a href="admin-view-course" style="text-decoration: none;color:white;">
-        <div class="card bg-c-gtx order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">View Course</h6>
-            <h2 class="text-right"><i class="fas fa-eye f-left"></i></h2>
-          </div>
-        </div>
-      </a>
-      </div>
-  
-     
-  
-     
+        <a href="admin-view-course" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">View Courses</p>
+                    <p class="text-2xl font-bold text-gray-900">Browse All</p>
+                </div>
+                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-eye text-gray-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
     </div>
-  </div>
 
-
-<br><br><br><br><br><br><br><br><br><br>
-
-<script src="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
-
+    <!-- Course Management -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Course Management</h2>
+            <p class="text-gray-500">Add and manage courses in the system</p>
+        </div>
+        <div class="p-6">
+            <div class="flex space-x-4 mb-6">
+                <a href="admin-add-course" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    Add New Course
+                </a>
+                <a href="admin-view-course" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                    View All Courses
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock content %}

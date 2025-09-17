@@ -2,53 +2,111 @@
 {% block content %}
 {%load static%}
 
-<head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<div x-show="activeTab === 'exam'" class="space-y-6">
+    <!-- Exam Details Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Exam Preparation</h2>
+            <p class="text-gray-500">Review exam details and rules before starting</p>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Exam Details -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-info-circle text-blue-600"></i>
+                        </div>
+                        Exam Details
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700">Course</span>
+                            <span class="text-sm text-gray-900 font-semibold">{{course.course_name}}</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700">Total Questions</span>
+                            <span class="text-sm text-gray-900 font-semibold">{{total_questions}}</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700">Total Marks</span>
+                            <span class="text-sm text-gray-900 font-semibold">{{total_marks}}</span>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Exam Rules -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-exclamation-circle text-orange-600"></i>
+                        </div>
+                        Exam Rules
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start p-3 bg-orange-50 rounded-lg">
+                            <span class="text-orange-600 mr-2 mt-1">•</span>
+                            <span class="text-sm text-gray-700">All questions are MCQ (multiple choice question)</span>
+                        </div>
+                        <div class="flex items-start p-3 bg-orange-50 rounded-lg">
+                            <span class="text-orange-600 mr-2 mt-1">•</span>
+                            <span class="text-sm text-gray-700"><span class="text-red-600 font-medium">Only one choice</span> is correct among the given options</span>
+                        </div>
+                        <div class="flex items-start p-3 bg-orange-50 rounded-lg">
+                            <span class="text-orange-600 mr-2 mt-1">•</span>
+                            <span class="text-sm text-gray-700">Every question carries different marks</span>
+                        </div>
+                        <div class="flex items-start p-3 bg-orange-50 rounded-lg">
+                            <span class="text-orange-600 mr-2 mt-1">•</span>
+                            <span class="text-sm text-gray-700">Try to answer as soon as possible</span>
+                        </div>
+                        <div class="flex items-start p-3 bg-orange-50 rounded-lg">
+                            <span class="text-orange-600 mr-2 mt-1">•</span>
+                            <span class="text-sm text-gray-700">Questions are presented randomly</span>
+                        </div>
+                        <div class="flex items-start p-3 bg-red-50 rounded-lg">
+                            <span class="text-red-600 mr-2 mt-1">⚠</span>
+                            <span class="text-sm text-red-700 font-medium">Do not refresh or go back - it will count as an attempt</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-</head>
-<br><br>
-<div class="container my-4">
-    <div class="jumbotron">
+            <!-- Important Notice -->
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-start">
+                    <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1 mr-3">
+                        <i class="fas fa-lightbulb text-blue-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-blue-900 mb-1">Pro Tip</h4>
+                        <p class="text-sm text-blue-700">You will be able to view your marks immediately after submitting your answers. Take your time and read each question carefully!</p>
+                    </div>
+                </div>
+            </div>
 
-        <div class="row">
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="{% url 'start-exam' course.id %}" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-center">
+                    <i class="fas fa-door-open mr-2"></i> Enter Examination
+                </a>
+                <a href="/student/student-exam" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Exams
+                </a>
+            </div>
+        </div>
+    </div>
 
-            <div class="card border-info mx-4 my-4">
-                <div class="card-body text-default">
-
-                    <h4 class="card-title">Exam Details :</h4>
-                    <p class="card-text">
-                        </p><ul style="list-style:decimal;">
-                            <li>Course : {{course.course_name}}</li>
-                            <li>Total Question : {{total_questions}}</li>
-                            <li>Total Marks : {{total_marks}}</li>
-                        </ul>
-                    <p></p>
-
-
-
-                    <h4 class="card-title">Rules :</h4>
-                    <p class="card-text">
-                        </p><ul style="list-style:decimal;">
-                            <li>All questions are MCQ (multiple choice question)</li>
-                            <li><span class="text-danger">Only one choice is correct among the given.</span></li>
-                            <li>Every question carry different marks.</li>
-                            <li>Try to answer ASAP.</li>
-                            <li>If you PRESS refresh or go back to the previous page, there will be a new question for you and the question you were on will be counted as number of attempts.</li>
-                            <li>Questions are presented randomly.</li>
-                            <li>You will be able to view marks immediately once after you submit the answer.</li>
-                        </ul>
-                    <p></p>
-                    <a href="{% url 'start-exam' course.id  %}" class="btn btn-success" style="border-radius:0px;">Enter Examination</a>
-                </div>  
-                <div class="card-footer">Best Of Luck, Students!</div>  
-            </div>  
-        </div>  
-
+    <!-- Good Luck Card -->
+    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl shadow-sm border border-purple-200">
+        <div class="p-6 text-center">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-star text-purple-600 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-purple-900 mb-2">Best of Luck!</h3>
+            <p class="text-purple-700">You've prepared well. Now trust your knowledge and do your best!</p>
+        </div>
     </div>
 </div>
 
-<br><br><br><br><br><br>
 {% endblock content %}

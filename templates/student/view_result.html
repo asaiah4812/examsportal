@@ -2,51 +2,402 @@
 {% block content %}
 {%load static%}
 
-<head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-
-  <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
-
-    h6 {
-      text-align: center;
-    }
-
-    .row {
-      margin: 100px;
-    }
-  </style>
-</head>
-<br><br>
-<div class="container">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h6 class="panel-title">View Marks</h6>
+<div x-data="resultViewer()" x-init="init()" class="space-y-6">
+    <!-- Latest Result Card (if available) -->
+    {% if latest_result %}
+    <div class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl shadow-lg border border-green-200 overflow-hidden">
+        <div class="relative">
+            <!-- Decorative background pattern -->
+            <div class="absolute inset-0 opacity-5">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-green-500 rounded-full transform translate-x-16 -translate-y-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-emerald-500 rounded-full transform -translate-x-12 translate-y-12"></div>
+            </div>
+            
+            <div class="relative p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mr-6 shadow-lg">
+                            <i class="fas fa-trophy text-white text-2xl"></i>
+                </div>
+                <div>
+                            <h2 class="text-2xl font-bold text-green-900 mb-1">Latest Exam Result</h2>
+                            <p class="text-green-700 font-medium">{{ latest_result.course_name }}</p>
+                            <p class="text-sm text-green-600">Just completed!</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance Badge -->
+                    <div class="text-right">
+                        {% if latest_result.percentage >= 80 %}
+                            <div class="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                                <i class="fas fa-star mr-2"></i>Excellent!
+                            </div>
+                        {% elif latest_result.percentage >= 60 %}
+                            <div class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                                <i class="fas fa-thumbs-up mr-2"></i>Good Job!
+                            </div>
+                        {% else %}
+                            <div class="inline-flex items-center px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
+                                <i class="fas fa-chart-line mr-2"></i>Keep Improving!
+                            </div>
+                        {% endif %}
+                </div>
+            </div>
+            
+                <!-- Stats Grid with enhanced design -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-check-circle text-white"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-green-600 mb-1">{{ latest_result.total_marks }}</div>
+                        <div class="text-sm text-gray-600 font-medium">Marks Obtained</div>
+                    </div>
+                    
+                    <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-list-ol text-white"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-blue-600 mb-1">{{ latest_result.correct_answers }}/{{ latest_result.total_questions }}</div>
+                        <div class="text-sm text-gray-600 font-medium">Correct Answers</div>
+                    </div>
+                    
+                    <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-percentage text-white"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-purple-600 mb-1">{{ latest_result.percentage }}%</div>
+                        <div class="text-sm text-gray-600 font-medium">Percentage</div>
+                    </div>
+                    
+                    <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-chart-pie text-white"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-orange-600 mb-1">
+                            {% if latest_result.percentage >= 80 %}A+
+                            {% elif latest_result.percentage >= 70 %}A
+                            {% elif latest_result.percentage >= 60 %}B
+                            {% elif latest_result.percentage >= 50 %}C
+                            {% else %}D{% endif %}
+                        </div>
+                        <div class="text-sm text-gray-600 font-medium">Grade</div>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="mt-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700">Overall Performance</span>
+                        <span class="text-sm font-bold text-green-600">{{ latest_result.percentage }}%</span>
+                </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-1000 ease-out" 
+                             :style="'width: ' + {{ latest_result.percentage }} + '%'"></div>
+                </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <table class="table table-hover table-bordered" id="dev-table">
-      <thead>
-        <tr>
+    {% endif %}
 
-          <th>Exam Name</th>
-          
-          <th>Action</th>
-        </tr>
-      </thead>
-      {% for t in courses %}
-      <tr>
-
-        <td> {{t.course_name}}</td>
+    <!-- All Results Card -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Exam Results History</h2>
+                    <p class="text-gray-600 mt-1">View all your exam attempts and track your progress</p>
+                </div>
+                
+                <!-- View Toggle -->
+                <div class="flex items-center space-x-2">
+                    <button @click="viewMode = 'cards'" 
+                            :class="viewMode === 'cards' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600'"
+                            class="px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-th-large mr-1"></i> Cards
+                    </button>
+                    <button @click="viewMode = 'table'" 
+                            :class="viewMode === 'table' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600'"
+                            class="px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-table mr-1"></i> Table
+                    </button>
+                </div>
+            </div>
+        </div>
         
-        <td><a class="btn btn-success btn-sm" style="border-radius: 0%;" href="{% url 'check-marks' t.id  %}"><span class="glyphicon glyphicon-eye-open"></span> View Marks</a></td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
+        {% if results %}
+        <!-- Cards View -->
+        <div x-show="viewMode === 'cards'" class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for result in results %}
+                {% widthratio result.marks result.exam.total_marks 100 as percentage %}
+                <div class="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-book text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">{{ result.exam.course_name }}</h3>
+                                <p class="text-sm text-gray-500">{{ result.date|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Status Badge -->
+                        {% if percentage >= 80 %}
+                            <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                <i class="fas fa-star mr-1"></i>Excellent
+                            </span>
+                        {% elif percentage >= 60 %}
+                            <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                <i class="fas fa-thumbs-up mr-1"></i>Good
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-chart-line mr-1"></i>Improve
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Score Display -->
+                    <div class="text-center mb-4">
+                        <div class="text-4xl font-bold text-gray-900 mb-1">{{ percentage|floatformat:1 }}%</div>
+                        <div class="text-sm text-gray-600">{{ result.marks }} / {{ result.exam.total_marks }} marks</div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                        <div class="h-2 rounded-full transition-all duration-1000"
+                             style="width: {{ percentage }}%; background: {% if percentage >= 80 %}linear-gradient(90deg, #10b981, #059669){% elif percentage >= 60 %}linear-gradient(90deg, #3b82f6, #2563eb){% else %}linear-gradient(90deg, #f59e0b, #d97706){% endif %};">
+                        </div>
+                    </div>
+                    
+                    <!-- Grade -->
+                    <div class="text-center">
+                        <div class="text-lg font-bold text-gray-700">
+                            Grade: {% if percentage >= 80 %}A+{% elif percentage >= 70 %}A{% elif percentage >= 60 %}B{% elif percentage >= 50 %}C{% else %}D{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Table View -->
+        <div x-show="viewMode === 'table'" class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for result in results %}
+                    {% widthratio result.marks result.exam.total_marks 100 as percentage %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-book text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ result.exam.course_name }}</div>
+                                    <div class="text-sm text-gray-500">{{ result.exam.total_marks }} total marks</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-lg font-bold text-gray-900">{{ result.marks }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-lg font-bold text-gray-900">{{ percentage|floatformat:1 }}%</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-lg font-bold text-gray-700">
+                                {% if percentage >= 80 %}A+{% elif percentage >= 70 %}A{% elif percentage >= 60 %}B{% elif percentage >= 50 %}C{% else %}D{% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ result.date|date:"M d, Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if percentage >= 80 %}
+                                <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    <i class="fas fa-star mr-1"></i>Excellent
+                                </span>
+                            {% elif percentage >= 60 %}
+                                <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    <i class="fas fa-thumbs-up mr-1"></i>Good
+                                </span>
+                            {% else %}
+                                <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-chart-line mr-1"></i>Improve
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-12 text-center">
+            <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-chart-bar text-gray-400 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No Results Yet</h3>
+            <p class="text-gray-500 mb-6">You haven't taken any exams yet. Start with your first exam and track your progress!</p>
+            <a href="{% url 'student-exam' %}" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-indigo-800 transition-all duration-300 transform hover:-translate-y-1 shadow-lg">
+                <i class="fas fa-play mr-3"></i>
+                Take Your First Exam
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Performance Analytics Card -->
+    {% if results %}
+    <div class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-lg border border-indigo-200 overflow-hidden">
+        <div class="p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Performance Analytics</h2>
+                <p class="text-gray-600">Your comprehensive exam performance overview</p>
+        </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <!-- Total Exams -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clipboard-list text-white text-xl"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-1">{{ results|length }}</div>
+                    <div class="text-sm text-gray-600 font-medium">Total Exams</div>
+                </div>
+                
+                <!-- Average Score -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-line text-white text-xl"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-1">
+                        {% if performance_stats %}
+                            {{ performance_stats.average_percentage|floatformat:1 }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                    <div class="text-sm text-gray-600 font-medium">Average Score</div>
+                </div>
+                
+                <!-- Best Score -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-trophy text-white text-xl"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-1">
+                        {% if performance_stats %}
+                            {{ performance_stats.best_percentage|floatformat:1 }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                    <div class="text-sm text-gray-600 font-medium">Best Score</div>
+                </div>
+                
+                <!-- Improvement Rate -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-trending-up text-white text-xl"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-1">
+                        {% if performance_stats and performance_stats.total_exams > 1 %}
+                            {% widthratio performance_stats.best_percentage performance_stats.average_percentage 100 as improvement %}
+                            {{ improvement|floatformat:0 }}%
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <div class="text-sm text-gray-600 font-medium">Improvement</div>
+                </div>
+            </div>
+            
+            <!-- Performance Insights -->
+            <div class="bg-white/60 backdrop-blur-sm rounded-xl p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance Insights</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center p-4 bg-green-50 rounded-lg">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-check-circle text-green-600"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-green-900">Consistent Performance</div>
+                            <div class="text-sm text-green-700">Keep up the great work!</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center p-4 bg-blue-50 rounded-lg">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-target text-blue-600"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-blue-900">Next Goal</div>
+                            <div class="text-sm text-blue-700">Aim for 90%+ in your next exam</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+        <a href="{% url 'student-exam' %}" class="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-8 py-4 rounded-xl font-semibold text-center transition-all duration-300 transform hover:-translate-y-1 shadow-lg">
+            <i class="fas fa-plus mr-3"></i>
+            Take Another Exam
+        </a>
+        <a href="{% url 'student-dashboard' %}" class="flex-1 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 px-8 py-4 rounded-xl font-semibold text-center transition-all duration-300 transform hover:-translate-y-1">
+            <i class="fas fa-home mr-3"></i>
+            Back to Dashboard
+        </a>
+    </div>
 </div>
 
-<br><br><br><br><br><br>
+<script>
+    function resultViewer() {
+        return {
+            viewMode: 'cards',
+            
+            init() {
+                // Set default view mode based on screen size
+                if (window.innerWidth < 768) {
+                    this.viewMode = 'cards';
+                }
+                
+                // Animate progress bars on load
+                this.$nextTick(() => {
+                    this.animateProgressBars();
+                });
+            },
+            
+            animateProgressBars() {
+                const progressBars = document.querySelectorAll('[style*="width:"]');
+                progressBars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 500);
+                });
+            }
+        }
+    }
+</script>
+
 {% endblock content %}

@@ -1,35 +1,50 @@
 <!DOCTYPE html>
 {% load widget_tweaks %}
-
-
-  <style media="screen">
-    .jumbotron {
-      margin-top: 0px;
-      margin-bottom: 0px;
-    }
-
-    .jumbotron h1 {
-      text-align: center;
-    }
-
-    .alert {
-      margin: 0px;
-    }
-  </style>
-  <body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Pending - EduTest Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
     {% include "exam/navbar.html" %}
 
-      <div class="jumbotron" style="margin-top: 0px;
-        margin-bottom: 0px;">
-        <h1 class="display-4">Hello {{request.user.first_name}},</h1>
-        <p class="lead">Your Account has not been <b>ACTIVATED</b> yet! <br><br>Waiting for approval from the administrator <br><br>and Soon you'll be able to access your Account after approval</p>
-        <hr class="my-4">
-       
-        <p class="lead">
-          <a class="btn btn-danger btn-lg" href="/logout" style="border-radius: 0%;" role="button">Logout Now</a>
-        </p>
-      </div>
+    <div class="min-h-screen flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-clock text-yellow-600 text-3xl"></i>
+                </div>
+                
+                <h1 class="text-2xl font-bold text-gray-900 mb-4">Hello {{request.user.first_name}},</h1>
+                
+                <p class="text-gray-600 mb-6">
+                    Your account is currently <span class="font-semibold text-yellow-600">pending approval</span>. 
+                    Our administrators are reviewing your application and you'll be able to access your account soon.
+                </p>
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle text-yellow-600 mr-3"></i>
+                        <p class="text-sm text-yellow-800">
+                            You'll receive an email notification once your account is activated.
+                        </p>
+                    </div>
+                </div>
 
-{% include "exam/footer.html" %}
-  </body>
+                <a href="/logout" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors inline-block text-center">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout Now
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% include "exam/footer.html" %}
+</body>
 </html>

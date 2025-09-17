@@ -2,56 +2,56 @@
 {% block content %}
 {%load static%}
 
-<head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-
-  <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
-
-    h6 {
-      text-align: center;
-    }
-
-    .row {
-      margin: 100px;
-    }
-  </style>
-</head>
-<br><br>
-<div class="container">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h6 class="panel-title">View Marks</h6>
+<div x-show="activeTab === 'student'" class="space-y-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Student Marks</h2>
+            <p class="text-gray-500">View examination results and marks</p>
+            {% if student and course %}
+            <div class="mt-2 text-sm text-gray-600">
+                <span class="font-medium">Student:</span> {{ student.get_name }} | 
+                <span class="font-medium">Course:</span> {{ course.course_name }}
+            </div>
+            {% endif %}
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Marks</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attempt Number</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exam Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for t in results %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{t.exam}}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{t.marks}}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Attempt {{ forloop.counter }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{t.date}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if not results %}
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-clipboard-list text-4xl mb-3"></i>
+                <p>No exam results found for this student and course</p>
+                <p class="text-sm mt-2">The student may not have taken this exam yet</p>
+                <div class="mt-4">
+                    <a href="{% url 'admin-view-student-marks' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Student List
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
-    <table class="table table-hover table-bordered" id="dev-table">
-      <thead>
-        <tr>
-
-          <th>Course</th>
-          
-          <th>Total Marks</th>
-          <th>Number of Attempt</th>
-          <th>Exam Date</th>
-        </tr>
-      </thead>
-      {% for t in results %}
-      <tr>
-
-        <td> {{t.exam}}</td>
-        <td> {{t.marks}}</td>
-        <td>Attempt {{ forloop.counter }}</td>
-        <td> {{t.date}}</td>
-        
-        
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
 </div>
 
-<br><br><br><br><br><br>
 {% endblock content %}

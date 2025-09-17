@@ -2,108 +2,105 @@
 {% load widget_tweaks %}
 {% block content %}
 
+<div x-show="activeTab === 'questions'" class="space-y-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <a href="teacher-add-question" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-colors">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Add Question</p>
+                    <p class="text-2xl font-bold text-gray-900">Create New</p>
+                </div>
+                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-plus text-indigo-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-    <style type="text/css">
-      a:link {
-        text-decoration: none;
-      }
-  
-      .order-card {
-        color: rgb(255, 255, 255);
-      }
-  
-      .bg-c-blue {
-        background: #04868f;
-      }
-  
-      .bg-c-green {
-        background:#4C51BF;
-      }
-  
-      .bg-c-yellow {
-        background: #F56565;
-      }
-  
-      .bg-c-pink {
-        background: #663a30;
-      }
-  
-  
-      .card {
-        
-        -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
-        box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
-        margin-bottom: 30px;
-        -webkit-transition: all 0.3s ease-in-out;
-        transition: all 0.3s ease-in-out;
-      }
-  
-      .card .card-block {
-        padding: 25px;
-      }
-  
-      .order-card i {
-        font-size: 26px;
-      }
-  
-      .f-left {
-        float: left;
-      }
-  
-      .f-right {
-        float: right;
-      }
-      header {
-      left: 0px;
-      right: 0px;
-    }
-    </style>
-  </head>
-<br><br>
+        <a href="bulk-upload-questions" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-colors">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Bulk Upload</p>
+                    <p class="text-2xl font-bold text-gray-900">Import from Excel</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-file-excel text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4 col-xl-6">
-        <a href="teacher-add-question" style="text-decoration: none;color:white;">
-        <div class="card bg-c-blue order-card">
-          <div class="card-block">
-            <h6 class="m-b-20"> Add Question </h6>
-            <h2 class="text-right"><i class="fas fa-plus f-left"></i></h2>
-          </div>
-        </div>
-      </a>
-      </div>
-  
-      <div class="col-md-4 col-xl-6">
-        <a href="teacher-view-question" style="text-decoration: none;color:white;">
-        <div class="card bg-c-yellow order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">View Questions </h6>
-            <h2 class="text-right"><i class="fas fa-eye f-left"></i></h2>
-          </div>
-        </div>
-      </a>
-      </div>
-  
-     
-  
-     
+        <a href="teacher-view-question" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-colors">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">View Questions</p>
+                    <p class="text-2xl font-bold text-gray-900">Browse All</p>
+                </div>
+                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-eye text-gray-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
     </div>
-  </div>
 
+    <!-- Question Management -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Question Management</h2>
+            <p class="text-gray-500">Create and manage examination questions</p>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-6 bg-indigo-50 rounded-lg">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-plus text-indigo-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Create New Question</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Add multiple choice questions with clear options and correct answers.</p>
+                    <a href="teacher-add-question" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium">
+                        <span>Add Question</span>
+                        <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                    </a>
+                </div>
 
-<br><br><br><br><br><br><br><br><br><br>
+                <div class="p-6 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-eye text-gray-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">View Questions</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Browse, edit, or delete existing questions across all courses.</p>
+                    <a href="teacher-view-question" class="inline-flex items-center text-gray-700 hover:text-gray-900 font-medium">
+                        <span>View Questions</span>
+                        <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<script src="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
-
+    <!-- Question Guidelines -->
+    <div class="bg-blue-50 rounded-xl shadow-sm border border-blue-200">
+        <div class="p-6">
+            <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-graduation-cap text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-blue-900 mb-2">Question Creation Tips</h3>
+                    <ul class="text-blue-800 space-y-1 text-sm">
+                        <li>• Use clear and unambiguous language in questions</li>
+                        <li>• Ensure only one correct answer among options</li>
+                        <li>• Make distractors plausible but clearly incorrect</li>
+                        <li>• Vary the position of the correct answer</li>
+                        <li>• Keep questions focused on one concept or skill</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock content %}

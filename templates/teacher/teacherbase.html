@@ -1,206 +1,196 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en" dir="ltr">
-
+{% load tailwind_tags %}
+<html lang="en">
 <head>
-  <meta charset="utf-8">
- 
-
-  <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Gill Sans", sans-serif;;
-    }
-
-    header {
-      position: fixed;
-      background: #22242A;
-      padding: 20px;
-      width: 100%;
-      z-index: 1;
-    }
-
-    .left_area h3 {
-      color: #fff;
-      margin: 0px;
-      text-transform: uppercase;
-      font-size: 22px;
-      font-weight: 900;
-    }
-
-    .left_area span {
-      color: #19B3D3;
-    }
-
-    .logout_btn {
-      padding: 5px;
-      background:#ef5350;
-      text-decoration: none;
-      float: right;
-      margin-top: -30px;
-      margin-right: 40px;
-      border-radius: 2px;
-      font-size: 15px;
-      font-weight: 600;
-      color: #fff;
-      transition: 0.5s;
-
-    }
-
-    .logout_btn:hover {
-      background: #bb403e;
-    }
-
-    .sidebar {
-      background: #2f323a;
-      margin-top: 70px;
-      padding-top: 30px;
-      position: fixed;
-      left: 0;
-      width: 250px;
-      height: 100%;
-      transition: 0.5s;
-      transition-property: left;
-    }
-
-    .sidebar .profile_image {
-      width: 100px;
-      height: 100px;
-      border-radius: 100px;
-      margin-bottom: 10px;
-    }
-
-    .sidebar h4 {
-      color: #ccc;
-      margin-top: 0;
-      
-    }
-
-    .sidebar a {
-      color: #fff;
-      display: block;
-      width: 100%;
-      line-height: 60px;
-      text-decoration: none;
-      padding-left: 40px;
-      box-sizing: border-box;
-      transition: 0.5s;
-
-    }
-
-    .sidebar a:hover {
-      background:  #969696;
-      color:white;
-    }
-
-    .sidebar i {
-      padding-right: 10px;
-    }
-
-    label #sidebar_btn {
-      z-index: 1;
-      color: #fff;
-      position: fixed;
-      cursor: pointer;
-      left: 300px;
-      font-size: 20px;
-      margin: 5px 0;
-      transition: 0.5s;
-      transition-property: color;
-    }
-
-    label #sidebar_btn:hover {
-      color: #575757;
-    }
-
-    #check:checked~.sidebar {
-      left: -190px;
-    }
-
-    #check:checked~.sidebar a span {
-      display: none;
-    }
-
-    #check:checked~.sidebar a {
-      font-size: 20px;
-      margin-left: 170px;
-      width: 80px;
-    }
-
-    .content {
-      margin-left: 250px;
-      background: url(background.png) no-repeat;
-      background-position: center;
-      background-size: cover;
-      height: 100vh;
-      transition: 0.5s;
-    }
-
-    #check:checked~.content {
-      margin-left: 60px;
-    }
-
-    #check {
-      display: none;
-    }
-  </style>
-
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
-
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - EduTest Portal</title>
+    {% tailwind_css %}
+    <script defer src="{% static 'js/alpine.min.js' %}"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'font/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'font/css/fontawesome.min.css' %}">
+    <style>
+        body { font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; }
+    </style>
 </head>
+<body class="bg-gray-100 text-gray-800" x-data="teacherDashboard()">
+    <div class="flex h-screen">
+        {% if messages %}
+        <div class="fixed top-4 right-4 z-50 space-y-3">
+            {% for message in messages %}
+            <div x-data="{ show: true }" x-init="setTimeout(()=>show=false, 5000)" x-show="show"
+                 x-transition:enter="transform ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transform ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave-end="opacity-0 -translate-y-2 scale-95"
+                 class="relative max-w-md w-full rounded-xl border shadow-xl px-4 py-3 flex items-start space-x-3 backdrop-blur
+                 {% if 'success' in message.tags %} bg-green-50/90 border-green-200 text-green-800 {% elif 'error' in message.tags %} bg-red-50/90 border-red-200 text-red-800 {% elif 'warning' in message.tags %} bg-yellow-50/90 border-yellow-200 text-yellow-800 {% else %} bg-blue-50/90 border-blue-200 text-blue-800 {% endif %}">
+                <span class="absolute left-0 top-0 h-full w-1 rounded-l-xl
+                 {% if 'success' in message.tags %} bg-green-500 {% elif 'error' in message.tags %} bg-red-500 {% elif 'warning' in message.tags %} bg-yellow-500 {% else %} bg-blue-500 {% endif %}"></span>
+                <div class="mt-0.5">
+                    <i class="fas {% if 'success' in message.tags %}fa-check-circle{% elif 'error' in message.tags %}fa-times-circle{% elif 'warning' in message.tags %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                </div>
+                <div class="flex-1 text-sm leading-relaxed pr-6">{{ message }}</div>
+                <button @click="show=false" class="ml-2 text-current/70 hover:text-current">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="absolute bottom-0 left-0 h-0.5 rounded-b-xl
+                    {% if 'success' in message.tags %} bg-green-500 {% elif 'error' in message.tags %} bg-red-500 {% elif 'warning' in message.tags %} bg-yellow-500 {% else %} bg-blue-500 {% endif %}"
+                     x-data="{ w: 100 }" x-init="let i=setInterval(()=>{w-=2;if(w<=0){clearInterval(i)}},100)" :style="`width:${w}%;`"></div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-700">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-white">EduTest Portal</h1>
+                        <p class="text-xs text-gray-400">Teacher Dashboard</p>
+                    </div>
+                </div>
+            </div>
 
-<body>
+            <!-- User Profile -->
+            <div class="p-6 border-b border-gray-700">
+                <div class="flex items-center space-x-3">
+                    <img src="{% static 'image/teacher.png' %}" class="w-12 h-12 rounded-full" alt="Teacher Profile">
+                    <div>
+                        <h4 class="text-sm font-medium text-white">{{request.user.first_name}} {{request.user.last_name}}</h4>
+                        <p class="text-xs text-gray-400">Teacher Account</p>
+                    </div>
+                </div>
+            </div>
 
-  <input type="checkbox" id="check">
-  <!--header area start-->
-  <header>
-    <label for="check">
-      <i style="left: 200px;margin-top: 17px;"class="fas fa-bars" id="sidebar_btn"></i>
-    </label>
-    <div class="left_area">
-      <h3>Online Exam</h3>
+            <!-- Navigation -->
+            <nav class="flex-1 p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="/teacher/teacher-dashboard" 
+                           :class="activeTab === 'dashboard' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-indigo-600/10'"
+                           @click="activeTab = 'dashboard'"
+                           class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                            <i class="fas fa-tachometer-alt w-5 h-5"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/teacher/teacher-exam" 
+                           :class="activeTab === 'courses' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-indigo-600/10'"
+                           @click="activeTab = 'courses'"
+                           class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                            <i class="fas fa-book w-5 h-5"></i>
+                            <span>Manage Courses</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/teacher/teacher-question" 
+                           :class="activeTab === 'questions' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-indigo-600/10'"
+                           @click="activeTab = 'questions'"
+                           class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                            <i class="fas fa-question-circle w-5 h-5"></i>
+                            <span>Manage Questions</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Logout -->
+            <div class="p-4 border-t border-gray-700">
+                <a href="/logout" class="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-red-600/10 hover:text-red-400 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900" x-text="getPageTitle()"></h1>
+                        <p class="text-gray-500" x-text="getPageSubtitle()"></p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500">Current Time</p>
+                            <p class="text-sm font-medium text-gray-900" x-text="currentTime"></p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto p-6">
+                {% block content %}
+                <!-- Content will be inserted here -->
+                {% endblock content %}
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-white border-t border-gray-200 px-6 py-4">
+                <div class="text-center text-sm text-gray-500">
+                    <p>&copy; 2024 EduTest Portal. All rights reserved.</p>
+                </div>
+            </footer>
+        </div>
     </div>
-    <div class="right_area">
-      <a href="/logout" class="logout_btn">Logout</a>
-    </div>
-  </header>
-  <!--header area end-->
-  <!--sidebar start-->
-  <div class="sidebar">
-    <center>
 
-      <img src="{% static "image/teacher.png" %}" class="profile_image" alt="">
-      <h4>{{request.user.first_name}}</h4>
-      <h6 style="color: rgb(255, 255, 255);">( Teacher )</h6>
-
-    </center>
-
-    <a href="/teacher/teacher-dashboard"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-    <a href="/teacher/teacher-exam"><i class="fas fa-book"></i><span>Manage Courses</span></a>
-    <a href="/teacher/teacher-question"><i class="fas fa-question-circle"></i><span>Manage Questions</span></a>
-  </div>
-  <!--sidebar end-->
-
-
-  <!--content start-->
-  <div class="content">
-    <br><br><br><br><br>
-    {% block content %}
-
-    {% endblock content %}
-
-
-    <br><br><br>
-    {% include "exam/footer.html" %}
-  </div>
-  <!--content end-->
+    <script>
+        function teacherDashboard() {
+            return {
+                activeTab: 'dashboard',
+                currentTime: '',
+                
+                init() {
+                    this.updateTime();
+                    setInterval(() => this.updateTime(), 1000);
+                    // Set active tab based on current URL
+                    const path = window.location.pathname;
+                    if (path.includes('exam')) this.activeTab = 'courses';
+                    else if (path.includes('question')) this.activeTab = 'questions';
+                    else this.activeTab = 'dashboard';
+                },
+                
+                updateTime() {
+                    const now = new Date();
+                    this.currentTime = now.toLocaleTimeString();
+                },
+                
+                getPageTitle() {
+                    const titles = {
+                        dashboard: 'Dashboard',
+                        courses: 'Course Management',
+                        questions: 'Question Management'
+                    };
+                    return titles[this.activeTab] || 'Dashboard';
+                },
+                
+                getPageSubtitle() {
+                    const subtitles = {
+                        dashboard: 'Teacher dashboard overview',
+                        courses: 'Create and manage courses',
+                        questions: 'Add and manage exam questions'
+                    };
+                    return subtitles[this.activeTab] || '';
+                }
+            }
+        }
+    </script>
 </body>
-
 </html>

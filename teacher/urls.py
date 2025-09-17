@@ -18,4 +18,6 @@ path('teacher-add-question', views.teacher_add_question_view,name='teacher-add-q
 path('teacher-view-question', views.teacher_view_question_view,name='teacher-view-question'),
 path('see-question/<int:pk>', views.see_question_view,name='see-question'),
 path('remove-question/<int:pk>', views.remove_question_view,name='remove-question'),
+path('bulk-upload-questions', views.teacher_bulk_upload_questions_view, name='teacher-bulk-upload-questions'),
+path('download-sample-questions', views.teacher_download_sample_questions_excel, name='teacher-download-sample-questions'),
 ]

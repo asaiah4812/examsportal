@@ -24,4 +24,7 @@ class Result(models.Model):
     exam = models.ForeignKey(Course,on_delete=models.CASCADE)
     marks = models.PositiveIntegerField()
     date = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.student} - {self.exam} - {self.marks}"
 

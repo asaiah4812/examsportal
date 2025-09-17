@@ -2,103 +2,111 @@
 {% load widget_tweaks %}
 {% block content %}
 
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-    <style type="text/css">
-      a:link {
-        text-decoration: none;
-      }
-  
-      .order-card {
-        color: rgb(255, 255, 255);
-      }
-  
-      .bg-c-blue {
-        background: #04868f;
-      }
-  
-      .bg-c-green {
-        background:#4C51BF;
-      }
-  
-      .bg-c-yellow {
-        background: #F56565;
-      }
-  
-      .bg-c-pink {
-        background: #663a30;
-      }
-  
-  
-      .card {
-        
-        -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
-        box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
-        margin-bottom: 30px;
-        -webkit-transition: all 0.3s ease-in-out;
-        transition: all 0.3s ease-in-out;
-      }
-  
-      .card .card-block {
-        padding: 25px;
-      }
-  
-      .order-card i {
-        font-size: 26px;
-      }
-  
-      .f-left {
-        float: left;
-      }
-  
-      .f-right {
-        float: right;
-      }
-      header {
-      left: 0px;
-      right: 0px;
-    }
-    </style>
-  </head>
-<br><br>
-
-  <div class="container">
-    <div class="row">
-      
-  
-      <div class="col-md-4 col-xl-6">
-        <div class="card bg-c-blue order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Available Exams</h6>
-           <h2 class="text-right"><i class="fas fa-book f-left"></i><span>{{total_course}}</span></h2>
-          </div>
+<div x-show="activeTab === 'dashboard'" class="space-y-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Available Exams</p>
+                    <p class="text-2xl font-bold text-gray-900">{{total_course}}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-book text-blue-600 text-xl"></i>
+                </div>
+            </div>
         </div>
-      </div>
-  
-      <div class="col-md-4 col-xl-6">
-        <div class="card bg-c-yellow order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Total Questions</h6>
-            <h2 class="text-right"><i class="fas fa-question-circle f-left"></i><span>{{total_question}}</span></h2>
-            
-          </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Questions</p>
+                    <p class="text-2xl font-bold text-gray-900">{{total_question}}</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-question-circle text-red-600 text-xl"></i>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
+    <!-- Upcoming Exams -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Upcoming Exams</h2>
+            <p class="text-gray-500">Exams scheduled for the next 7 days</p>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                {% for exam in upcoming_exams %}
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-900">{{exam.title}}</h3>
+                        <p class="text-sm text-gray-500">{{exam.course}}</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">{{exam.date}}</span>
+                            <span class="text-xs text-gray-500">{{exam.duration}} minutes</span>
+                            <span class="text-xs text-gray-500">{{exam.questions}} questions</span>
+                        </div>
+                    </div>
+                    <button 
+                        onclick="window.location.href='/start-exam/{{exam.id}}'"
+                        class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                        Start Exam
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if not upcoming_exams %}
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-calendar-check text-4xl mb-3"></i>
+                <p>No upcoming exams scheduled</p>
+                <p class="text-sm mt-2">Check back later for new exam announcements</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 
-<br><br><br><br><br><br><br><br><br><br>
-
-<script src="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
-
+    <!-- Recent Results -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Recent Results</h2>
+            <p class="text-gray-500">Your most recent exam performances</p>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                {% for result in recent_results|slice:":3" %}
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h3 class="font-semibold text-gray-900">{{result.title}}</h3>
+                            <p class="text-sm text-gray-500">{{result.course}}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-2xl font-bold {% if result.score >= 70 %}text-green-600{% else %}text-red-600{% endif %}">
+                                {{result.score}}%
+                            </p>
+                            <p class="text-xs text-gray-500">{{result.grade}}</p>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="h-2 rounded-full {% if result.score >= 70 %}bg-green-500{% else %}bg-red-500{% endif %}" 
+                             style="width: {{result.score}}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if not recent_results %}
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-chart-line text-4xl mb-3"></i>
+                <p>No exam results yet</p>
+                <p class="text-sm mt-2">Complete an exam to see your results here</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
 {% endblock content %}

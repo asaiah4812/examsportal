@@ -1,0 +1,112 @@
+  <!-- Navigation -->
+  <nav class="bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-50 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shadow-lg">
+                    <!-- Nursing/medical icon -->
+                    <svg class="w-7 h-7 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 2v20m6-10H6m9-7l-6 6m0-6l6 6" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-foreground">CBT Portal</h1>
+                    <p class="text-xs text-muted-foreground">School of Nursing Jalingo</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links with Login Dropdown and Light/Dark Mode Awareness -->
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="/" class="text-muted-foreground hover:text-foreground transition-colors duration-200">Home</a>
+                <a href="#features" class="text-muted-foreground hover:text-foreground transition-colors duration-200">Features</a>
+                <a href="#about" class="text-muted-foreground hover:text-foreground transition-colors duration-200">About</a>
+                <a href="#contact" class="text-muted-foreground hover:text-foreground transition-colors duration-200">Contact</a>
+                <!-- Login Dropdown Toggle with Enhanced Hover and Light/Dark Mode Styling -->
+                <div x-data="{ open: false }" class="relative group">
+                    <button
+                        @mouseenter="open = true"
+                        @mouseleave="setTimeout(() => { if (!document.querySelector('.login-dropdown:hover')) open = false }, 100)"
+                        @click="open = !open"
+                        :class="[
+                            'flex items-center space-x-1 transition-colors duration-200 focus:outline-none px-3 py-2 rounded-lg',
+                            open ? (darkMode ? 'bg-accent/20 text-white' : 'bg-accent/10 text-foreground') : (darkMode ? 'text-gray-200 hover:bg-accent/10 hover:text-white' : 'text-muted-foreground hover:bg-accent/10 hover:text-foreground')
+                        ]"
+                        aria-haspopup="true"
+                        aria-expanded="open"
+                    >
+                        <span>Login</span>
+                        <svg :class="{'rotate-180': open}" class="w-4 h-4 ml-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div
+                        x-show="open"
+                        @mouseenter="open = true"
+                        @mouseleave="open = false"
+                        x-transition
+                        :class="[
+                            'login-dropdown absolute right-0 mt-2 w-44 border rounded-lg shadow-lg z-50 py-2',
+                            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-border'
+                        ]"
+                    >
+                        <a href="/student/studentclick"
+                           :class="[
+                               'block px-4 py-2 text-sm transition-colors duration-150 rounded-md',
+                               darkMode ? 'text-gray-200 hover:bg-accent/30 hover:text-white' : 'text-muted-foreground hover:bg-accent/20 hover:text-foreground'
+                           ]"
+                        >Student Login</a>
+                        <a href="/teacher/teacherclick"
+                           :class="[
+                               'block px-4 py-2 text-sm transition-colors duration-150 rounded-md',
+                               darkMode ? 'text-gray-200 hover:bg-accent/30 hover:text-white' : 'text-muted-foreground hover:bg-accent/20 hover:text-foreground'
+                           ]"
+                        >Lecturer Login</a>
+                        <a href="/adminclick"
+                           :class="[
+                               'block px-4 py-2 text-sm transition-colors duration-150 rounded-md',
+                               darkMode ? 'text-gray-200 hover:bg-accent/30 hover:text-white' : 'text-muted-foreground hover:bg-accent/20 hover:text-foreground'
+                           ]"
+                        >Admin Login</a>
+                    </div>
+                </div>
+                <a href="{% url 'check-results' %}" class="text-muted-foreground hover:text-foreground transition-colors duration-200">Check Results</a>
+                <a href="/contactus" class="text-muted-foreground hover:text-foreground transition-colors duration-200">Help</a>
+                <!-- Modern dark mode toggle button with icon change -->
+                <button @click="darkMode = !darkMode"
+                        :class="darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-card border-border text-foreground'"
+                        class="p-2 rounded-lg hover:bg-accent/10 border transition-all duration-200 hover:scale-105 flex items-center"
+                        aria-label="Toggle dark mode">
+                    <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                    <svg x-show="darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="md:hidden flex items-center space-x-2">
+                <!-- Mobile dark mode toggle -->
+                <button @click="darkMode = !darkMode"
+                        :class="darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-card border-border text-foreground'"
+                        class="p-2 rounded-lg hover:bg-accent/10 border transition-all duration-200"
+                        aria-label="Toggle dark mode">
+                    <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                    <svg x-show="darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </button>
+                <button x-data @click="$dispatch('toggle-mobile-menu')" class="text-muted-foreground hover:text-foreground transition-colors duration-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>

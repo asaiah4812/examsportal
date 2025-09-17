@@ -6,6 +6,7 @@ class Student(models.Model):
     profile_pic= models.ImageField(upload_to='profile_pic/Student/',null=True,blank=True)
     address = models.CharField(max_length=40)
     mobile = models.CharField(max_length=20,null=False)
+    matric_no = models.CharField(max_length=30, null=True, blank=True, unique=True)
    
     @property
     def get_name(self):

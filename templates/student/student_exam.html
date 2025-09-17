@@ -2,51 +2,87 @@
 {% block content %}
 {%load static%}
 
-<head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-
-  <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
-
-    h6 {
-      text-align: center;
-    }
-
-    .row {
-      margin: 100px;
-    }
-  </style>
-</head>
-<br><br>
-<div class="container">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h6 class="panel-title">Available Courses</h6>
+<div x-show="activeTab === 'exam'" class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Available Exams</h2>
+            <p class="text-gray-500">Select a course to take the examination</p>
+        </div>
     </div>
-    <table class="table table-hover table-bordered" id="dev-table">
-      <thead>
-        <tr>
 
-          <th>Exam Name</th>
-          
-          <th>Action</th>
-        </tr>
-      </thead>
-      {% for t in courses %}
-      <tr>
+    <!-- Exams Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for course in courses %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-book text-indigo-600 text-xl"></i>
+                    </div>
+                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                        {{ course.question_number }} Questions
+                    </span>
+                </div>
+                
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ course.course_name }}</h3>
+                
+                <div class="flex items-center justify-between mt-4">
+                    <span class="text-sm text-gray-500">{{ course.total_marks }} Total Marks</span>
+                    <a href="{% url 'take-exam' course.id %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">
+                        <i class="fas fa-pen-to-square mr-2"></i> Start Exam
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 
-        <td> {{t.course_name}}</td>
-        
-        <td><a class="btn btn-success btn-sm" style="border-radius:0px;" href="{% url 'take-exam' t.id  %}"><span class="glyphicon glyphicon-check"></span> Attend Exam</a></td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
+    <!-- Empty State -->
+    {% if not courses %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 text-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-book-open text-gray-400 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">No Exams Available</h3>
+            <p class="text-gray-500">There are no exams scheduled at the moment.</p>
+            <p class="text-sm text-gray-400 mt-1">Please check back later for new exam announcements.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Exam Information Card -->
+    <div class="bg-blue-50 rounded-xl shadow-sm border border-blue-200">
+        <div class="p-6">
+            <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-blue-900 mb-2">Exam Guidelines</h3>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <span>Ensure you have a stable internet connection before starting</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <span>Each exam has a specific time limit - complete before time runs out</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <span>Answers are auto-saved as you progress through the exam</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-2">•</span>
+                            <span>Once submitted, answers cannot be changed</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<br><br><br><br><br><br>
 {% endblock content %}

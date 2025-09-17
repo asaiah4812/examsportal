@@ -13,6 +13,11 @@ from student import models as SMODEL
 from teacher import forms as TFORM
 from student import forms as SFORM
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.contrib import messages
+from django.urls import reverse
+import io
+import openpyxl
 
 
 
@@ -238,6 +243,84 @@ def admin_add_question_view(request):
 
 
 @login_required(login_url='adminlogin')
+def admin_bulk_upload_questions_view(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        file = request.FILES['file']
+        course_id = request.POST.get('course_id')
+        try:
+            course = models.Course.objects.get(id=course_id)
+        except models.Course.DoesNotExist:
+            return render(request, 'exam/bulk_upload.html', {
+                'courses': models.Course.objects.all(),
+                'error': 'Selected course not found.'
+            })
+
+        try:
+            wb = openpyxl.load_workbook(file)
+            ws = wb.active
+            created = 0
+            for idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+                # Expected columns: question, option1, option2, option3, option4, answer, marks
+                question_text, option1, option2, option3, option4, answer, marks = row or (None,)*7
+                if not question_text:
+                    continue
+                if answer not in ['Option1', 'Option2', 'Option3', 'Option4']:
+                    continue
+                try:
+                    marks_int = int(marks) if marks is not None else 1
+                except Exception:
+                    marks_int = 1
+                models.Question.objects.create(
+                    course=course,
+                    question=str(question_text)[:600],
+                    option1=str(option1 or '')[:200],
+                    option2=str(option2 or '')[:200],
+                    option3=str(option3 or '')[:200],
+                    option4=str(option4 or '')[:200],
+                    answer=answer,
+                    marks=marks_int
+                )
+                created += 1
+
+            # Optionally update course metadata
+            course.question_number = models.Question.objects.filter(course=course).count()
+            course.total_marks = models.Question.objects.filter(course=course).aggregate(Sum('marks'))['marks__sum'] or 0
+            course.save()
+
+            return render(request, 'exam/bulk_upload.html', {
+                'courses': models.Course.objects.all(),
+                'success': f'Successfully imported {created} questions into {course.course_name}.'
+            })
+        except Exception as e:
+            return render(request, 'exam/bulk_upload.html', {
+                'courses': models.Course.objects.all(),
+                'error': 'Failed to process file. Ensure it follows the sample format.'
+            })
+
+    return render(request, 'exam/bulk_upload.html', {
+        'courses': models.Course.objects.all()
+    })
+
+
+@login_required(login_url='adminlogin')
+def download_sample_questions_excel(request):
+    # Build an in-memory Excel file
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Questions'
+    ws.append(['question', 'option1', 'option2', 'option3', 'option4', 'answer', 'marks'])
+    ws.append(['What is 2 + 2?', '1', '2', '3', '4', 'Option4', 2])
+    ws.append(['Capital of France?', 'Berlin', 'Madrid', 'Paris', 'Lisbon', 'Option3', 5])
+
+    stream = io.BytesIO()
+    wb.save(stream)
+    stream.seek(0)
+    response = HttpResponse(stream.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="sample_questions.xlsx"'
+    return response
+
+
+@login_required(login_url='adminlogin')
 def admin_view_question_view(request):
     courses= models.Course.objects.all()
     return render(request,'exam/admin_view_question.html',{'courses':courses})
@@ -267,18 +350,46 @@ def admin_view_marks_view(request,pk):
 
 @login_required(login_url='adminlogin')
 def admin_check_marks_view(request,pk):
-    course = models.Course.objects.get(id=pk)
-    student_id = request.COOKIES.get('student_id')
-    student= SMODEL.Student.objects.get(id=student_id)
-
-    results= models.Result.objects.all().filter(exam=course).filter(student=student)
-    return render(request,'exam/admin_check_marks.html',{'results':results})
+    try:
+        course = models.Course.objects.get(id=pk)
+        student_id = request.COOKIES.get('student_id')
+            
+        if not student_id:
+            messages.error(request, 'No student selected. Please select a student first.')
+            return HttpResponseRedirect(reverse('admin-view-student-marks'))
+        
+        try:
+            student = SMODEL.Student.objects.get(id=student_id)
+        except SMODEL.Student.DoesNotExist:
+            messages.error(request, 'Selected student not found.')
+            return HttpResponseRedirect(reverse('admin-view-student-marks'))
+        results = models.Result.objects.filter(exam=course, student=student).order_by('-date')
+        
+        # Debug info
+        print(f"Course: {course.course_name}")
+        print(f"Student: {student.get_name}")
+        print(f"Results count: {results.count()}")
+        
+        context = {
+            'results': results,
+            'course': course,
+            'student': student
+        }
+        return render(request,'exam/admin_check_marks.html', context)
+        
+    except models.Course.DoesNotExist:
+        messages.error(request, 'Course not found.')
+        return HttpResponseRedirect(reverse('admin-view-student-marks'))
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return HttpResponseRedirect(reverse('admin-view-student-marks'))
     
 
 
 
 
 def aboutus_view(request):
+    
     return render(request,'exam/aboutus.html')
 
 def contactus_view(request):
@@ -293,4 +404,56 @@ def contactus_view(request):
             return render(request, 'exam/contactussuccess.html')
     return render(request, 'exam/contactus.html', {'form':sub})
 
+
+
+# Public: Check Results from landing page
+def check_results_view(request):
+    courses = models.Course.objects.all().order_by('course_name')
+    results = None
+    searched_user = None
+    selected_course = None
+
+    if request.method == 'POST':
+        username = (request.POST.get('username') or '').strip()
+        course_id = request.POST.get('course_id')
+
+        if not username:
+            messages.error(request, 'Please enter your username or matric number.')
+        else:
+            try:
+                # Accept either username or student matric number
+                try:
+                    user = User.objects.get(username=username)
+                except User.DoesNotExist:
+                    # Try via matric number
+                    student_by_matric = SMODEL.Student.objects.select_related('user').get(matric_no=username)
+                    user = student_by_matric.user
+                searched_user = user
+                student = SMODEL.Student.objects.get(user=user)
+
+                qs = models.Result.objects.filter(student=student).order_by('-date')
+                if course_id:
+                    try:
+                        selected_course = models.Course.objects.get(id=course_id)
+                        qs = qs.filter(exam=selected_course)
+                    except models.Course.DoesNotExist:
+                        messages.error(request, 'Selected course was not found.')
+
+                results = qs
+                if not qs.exists():
+                    messages.info(request, 'No results found for the provided details.')
+            except User.DoesNotExist:
+                messages.error(request, 'No user found with that username or matric number.')
+            except SMODEL.Student.DoesNotExist:
+                messages.error(request, 'Student profile not found for that user.')
+            except SMODEL.Student.MultipleObjectsReturned:
+                messages.error(request, 'Multiple student records found for that matric number.')
+
+    context = {
+        'courses': courses,
+        'results': results,
+        'searched_user': searched_user,
+        'selected_course': selected_course,
+    }
+    return render(request, 'exam/check_results.html', context)
 

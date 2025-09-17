@@ -1,41 +1,66 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+
 {% load static %}
-<html lang="en" dir="ltr">
+{% load tailwind_tags %}
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% block content %}
+{% load static %}
+    <title>Teacher Portal - EduTest</title>
+    {% tailwind_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {% comment %} <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"> {% endcomment %}
+<body class="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen">
+    
+    <div class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chalkboard-teacher text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Hello Teacher!</h1>
+                <p class="text-gray-600">Welcome to the EduTest Examination System</p>
+            </div>
 
-  <style media="screen">
-    .jumbotron {
-      margin-top: 0px;
-      margin-bottom: 0px;
-    }
+            <div class="space-y-4 mb-8">
+                <div class="flex items-center p-4 bg-blue-50 rounded-lg">
+                    <i class="fas fa-graduation-cap text-blue-600 text-xl mr-4"></i>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Create Exams</h3>
+                        <p class="text-sm text-gray-600">Design comprehensive assessments</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-green-50 rounded-lg">
+                    <i class="fas fa-check-circle text-green-600 text-xl mr-4"></i>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Manage Questions</h3>
+                        <p class="text-sm text-gray-600">Build question banks</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-purple-50 rounded-lg">
+                    <i class="fas fa-chart-line text-purple-600 text-xl mr-4"></i>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Track Progress</h3>
+                        <p class="text-sm text-gray-600">Monitor student performance</p>
+                    </div>
+                </div>
+            </div>
 
-    .jumbotron h1 {
-      text-align: center;
-    }
-
-  </style>
-
-</head>
-
-<body>
-
-  {% include "exam/navbar.html" %}
-  <br><br>
-  <div class="jumbotron" style="margin-bottom:0px;">
-    <h1 class="display-4">Hello Teacher,</h1>
-    <p class="lead">and Welcome to Online Examination System</p>
-    <hr class="my-4">
-    <p>Select any of them to access into the system</p>
-    <p class="lead">
-      <a class="btn btn-primary" style="border-radius:0px;" href="teachersignup" role="button">Create Your Account</a>
-      <a class="btn btn-success" style="border-radius:0px;" href="teacherlogin" role="button">Login Now</a>
-    </p>
-    <br><br><br><br>
-  </div>
-  {% include "exam/footer.html" %}
+            <div class="space-y-4">
+                <a href="teachersignup" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors inline-block text-center">
+                    <i class="fas fa-user-plus mr-2"></i> Create Account
+                </a>
+                
+                <a href="teacherlogin" class="w-full bg-white hover:bg-gray-50 text-indigo-600 border border-indigo-600 py-3 px-6 rounded-lg font-semibold transition-colors inline-block text-center">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Login Now
+                </a>
+            </div>
+        </div>
+    </div>
+    {% load static %}
+    <script defer src="{% static 'js/alpine.min.js' %}"></script>
+        {% comment %} {% include "exam/footer.html" %} {% endcomment %}
+    </body>
 </body>
-
-</html>
+{% endblock %}
