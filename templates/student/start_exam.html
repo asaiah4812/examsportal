@@ -1,5 +1,6 @@
-{% extends 'student/studentbase.html' %}
-{% block content %}
+<!-- student/templates/student/start_exam.html -->
+{% extends 'student/base.html' %}
+{% block exam_content %}
 {% load static %}
 
 <div class="bg-gray-100 text-gray-800 overflow-hidden" x-data="examInterface()" x-init="init()">
@@ -33,7 +34,7 @@
 
                 <button 
                     @click="showSubmitModal = true"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                    class="bg-indigo-600 hover:bg-indigo-700 cursor-pointer text-white px-6 py-2 rounded-lg font-semibold transition-colors">
                     Submit Exam
                 </button>
             </div>
@@ -182,7 +183,7 @@
                             <button 
                                 @click="currentQuestion--"
                                 :disabled="currentQuestion === 0"
-                                class="flex items-center space-x-2 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                class="flex items-center space-x-2 px-6 py-3 border cursor-pointer border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                 <i class="fas fa-arrow-left text-sm"></i>
                                 <span>Previous</span>
                             </button>
@@ -190,12 +191,12 @@
                             <div class="flex items-center space-x-4">
                                 <button 
                                     @click="clearAnswer()"
-                                    class="px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors">
+                                    class="px-4 py-2 text-gray-500 cursor-pointer hover:text-gray-700 transition-colors">
                                     Clear Answer
                                 </button>
                                 <button 
                                     @click="markForReview()"
-                                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                    class="px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
                                     :class="{'bg-yellow-100 border-yellow-300 text-yellow-800': reviewMarked[currentQuestion]}">
                                     <span x-text="reviewMarked[currentQuestion] ? 'Marked for Review' : 'Mark for Review'"></span>
                                 </button>
@@ -204,7 +205,7 @@
                             <button 
                                 @click="nextQuestion()"
                                 :disabled="currentQuestion === {{ questions|length }} - 1"
-                                class="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                class="flex items-center space-x-2 bg-indigo-600 cursor-pointer hover:bg-indigo-700 text-white px-6 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                 <span>Next</span>
                                 <i class="fas fa-arrow-right text-sm"></i>
                             </button>
@@ -223,7 +224,7 @@
                 <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-exclamation-triangle text-indigo-600 text-xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Submit Exam?</h3>
+                <h3 class="text-xl font-bold text-gray-900 cursor-pointer mb-2">Submit Exam?</h3>
                 <p class="text-gray-500 mb-6">Are you sure you want to submit your exam? This action cannot be undone.</p>
                 
                 <div class="bg-gray-100 p-4 rounded-lg mb-6 text-left">
@@ -236,8 +237,8 @@
                 </div>
 
                 <div class="flex space-x-4">
-                    <button @click="showSubmitModal = false" class="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Continue Exam</button>
-                    <button @click="submitExam()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">Submit Now</button>
+                    <button @click="showSubmitModal = false" class="flex-1 cursor-pointer px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Continue Exam</button>
+                    <button @click="submitExam()" class="flex-1 bg-indigo-600 cursor-pointer hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">Submit Now</button>
                 </div>
             </div>
         </div>
@@ -297,7 +298,7 @@
                 showKeyFeedback: false,
                 keyFeedbackText: '',
                 
-                // Store questions data
+                // Store questions data with shuffled options
                 questionsData: [
                     {% for q in questions %}
                     {
@@ -305,10 +306,9 @@
                         text: "{{ q.question|escapejs }}",
                         marks: {{ q.marks }},
                         options: [
-                            "{{ q.option1|escapejs }}",
-                            "{{ q.option2|escapejs }}",
-                            "{{ q.option3|escapejs }}",
-                            "{{ q.option4|escapejs }}"
+                            {% for option_key, option_text in q.shuffled_options %}
+                            "{{ option_text|escapejs }}"{% if not forloop.last %},{% endif %}
+                            {% endfor %}
                         ]
                     }{% if not forloop.last %},{% endif %}
                     {% endfor %}
@@ -388,6 +388,13 @@
                             e.preventDefault();
                         }
                     });
+
+                    // Security: Prevent tab switching
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.hidden && !this.examSubmitted) {
+                            alert('Warning: Switching tabs is not allowed during the exam!');
+                        }
+                    });
                 },
                 
                 startTimer() {
@@ -433,10 +440,9 @@
                     this.answers[questionIndex] = answerIndex;
                     if (this.questionsData && this.questionsData[questionIndex]) {
                         const questionId = this.questionsData[questionIndex].id;
-                        const answerValue = this.getAnswerValue(answerIndex);
                         const inputElement = document.getElementById(`answer${questionId}`);
                         if (inputElement) {
-                            inputElement.value = answerValue;
+                            inputElement.value = answerIndex;
                         }
                     }
                     
@@ -485,11 +491,6 @@
                     }
                 },
                 
-                getAnswerValue(answerIndex) {
-                    if (answerIndex === null || answerIndex === undefined) return '';
-                    return ['Option1', 'Option2', 'Option3', 'Option4'][answerIndex] || '';
-                },
-                
                 loadSavedAnswers() {
                     // Load from localStorage if available
                     const savedAnswers = localStorage.getItem('exam_answers_{{ course.id }}');
@@ -503,8 +504,7 @@
                             this.answers.forEach((answer, index) => {
                                 if (answer !== null) {
                                     const questionId = this.questionsData[index].id;
-                                    const answerValue = this.getAnswerValue(answer);
-                                    document.getElementById(`answer${questionId}`).value = answerValue;
+                                    document.getElementById(`answer${questionId}`).value = answer;
                                 }
                             });
                         } catch (e) {
@@ -532,8 +532,7 @@
                     this.answers.forEach((answer, index) => {
                         if (answer !== null) {
                             const questionId = this.questionsData[index].id;
-                            const answerValue = this.getAnswerValue(answer);
-                            document.getElementById(`answer${questionId}`).value = answerValue;
+                            document.getElementById(`answer${questionId}`).value = answer;
                         }
                     });
                     
@@ -556,7 +555,12 @@
                 }
             }
         }, 30000); // Save every 30 seconds
-    </script>
-    </div>
 
-{% endblock content %}
+        // Security: Prevent copy, paste, etc.
+        document.addEventListener('copy', (e) => e.preventDefault());
+        document.addEventListener('cut', (e) => e.preventDefault());
+        document.addEventListener('paste', (e) => e.preventDefault());
+    </script>
+</div>
+
+{% endblock %}

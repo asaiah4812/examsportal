@@ -1,19 +1,17 @@
+  {% load static %}
   <!-- Navigation -->
   <nav class="bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-50 transition-colors duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shadow-lg">
+                <div class="w-16 h-16 flex items-center justify-center bg-accent overflow-hidden rounded-full shadow-lg">
                     <!-- Nursing/medical icon -->
-                    <svg class="w-7 h-7 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 2v20m6-10H6m9-7l-6 6m0-6l6 6" />
-                    </svg>
+                   <img src="{% static 'image/logo.png' %}" class="w-full" alt="logo">
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-foreground">CBT Portal</h1>
-                    <p class="text-xs text-muted-foreground">School of Nursing Jalingo</p>
+                    <p class="text-xs text-muted-foreground">College of Nursing and <br> Midwifery Jalingo</p>
                 </div>
             </div>
 

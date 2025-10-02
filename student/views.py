@@ -1,41 +1,62 @@
-from django.shortcuts import render,redirect,reverse
-from . import forms,models
+# student/views.py
+from django.shortcuts import render, redirect, reverse
+from . import forms, models
 from django.db.models import Sum
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
-from django.contrib.auth.decorators import login_required,user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 from datetime import date, timedelta
 from exam import models as QMODEL
 from teacher import models as TMODEL
 from django.contrib import messages
 import json
+import random
 
-
-#for showing signup/login button for student
+# For showing signup/login button for student
 def studentclick_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
-    return render(request,'student/studentclick.html')
+    return render(request, 'student/studentclick.html')
 
 def student_signup_view(request):
-    userForm=forms.StudentUserForm()
-    studentForm=forms.StudentForm()
-    mydict={'userForm':userForm,'studentForm':studentForm}
-    if request.method=='POST':
-        userForm=forms.StudentUserForm(request.POST)
-        studentForm=forms.StudentForm(request.POST,request.FILES)
+    userForm = forms.StudentUserForm()
+    studentForm = forms.StudentForm()
+    mydict = {'userForm': userForm, 'studentForm': studentForm}
+    
+    if request.method == 'POST':
+        userForm = forms.StudentUserForm(request.POST)
+        studentForm = forms.StudentForm(request.POST, request.FILES)
+        
         if userForm.is_valid() and studentForm.is_valid():
-            user=userForm.save()
-            user.set_password(user.password)
+            # Save user with commit=False to get the user instance without saving to DB
+            user = userForm.save(commit=False)
+            user.username = user.username.lower()
+            
+            # Set password properly using raw password from form
+            raw_password = userForm.cleaned_data.get('password')
+            user.set_password(raw_password)
             user.save()
-            student=studentForm.save(commit=False)
-            student.user=user
+            
+            # Create student profile
+            student = studentForm.save(commit=False)
+            student.user = user
             student.save()
-            my_student_group = Group.objects.get_or_create(name='STUDENT')
-            my_student_group[0].user_set.add(user)
-        return HttpResponseRedirect('studentlogin')
-    return render(request,'student/studentsignup.html',context=mydict)
+            
+            # Add to STUDENT group
+            my_student_group, created = Group.objects.get_or_create(name='STUDENT')
+            my_student_group.user_set.add(user)
+            
+            # Add success message and redirect
+            messages.success(request, "Student account created successfully!")
+            return HttpResponseRedirect('studentlogin')
+        else:
+            # Show form errors
+            mydict['userForm'] = userForm
+            mydict['studentForm'] = studentForm
+            messages.error(request, "Please correct the errors below.")
+    
+    return render(request, 'student/studentsignup.html', context=mydict)
 
 def is_student(user):
     return user.groups.filter(name='STUDENT').exists()
@@ -43,69 +64,110 @@ def is_student(user):
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def student_dashboard_view(request):
-    dict={
-    
-    'total_course':QMODEL.Course.objects.all().count(),
-    'total_question':QMODEL.Question.objects.all().count(),
+    # Only count courses and questions for student's department and active courses
+    student = models.Student.objects.get(user_id=request.user.id)
+    courses_qs = QMODEL.Course.objects.filter(active=True)
+    if student.department_id:
+        courses_qs = courses_qs.filter(department_id=student.department_id)
+    total_course = courses_qs.count()
+    total_question = QMODEL.Question.objects.filter(course__in=courses_qs).count()
+    context = {
+        'total_course': total_course,
+        'total_question': total_question,
     }
-    return render(request,'student/student_dashboard.html',context=dict)
+    return render(request, 'student/student_dashboard.html', context=context)
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def student_exam_view(request):
-    courses=QMODEL.Course.objects.all()
-    return render(request,'student/student_exam.html',{'courses':courses})
+    # Only show active courses for student's department
+    student = models.Student.objects.get(user_id=request.user.id)
+    courses = QMODEL.Course.objects.filter(active=True)
+    if student.department_id:
+        courses = courses.filter(department_id=student.department_id)
+    return render(request, 'student/student_exam.html', {'courses': courses})
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
-def take_exam_view(request,pk):
-    course=QMODEL.Course.objects.get(id=pk)
-    total_questions=QMODEL.Question.objects.all().filter(course=course).count()
-    questions=QMODEL.Question.objects.all().filter(course=course)
-    total_marks=0
-    for q in questions:
-        total_marks=total_marks + q.marks
-    
-    return render(request,'student/take_exam.html',{'course':course,'total_questions':total_questions,'total_marks':total_marks})
-
-@login_required(login_url='studentlogin')
-@user_passes_test(is_student)
-def start_exam_view(request,pk):
+def take_exam_view(request, pk):
+    student = models.Student.objects.get(user_id=request.user.id)
     try:
-        course = QMODEL.Course.objects.get(id=pk)
-        questions = QMODEL.Question.objects.filter(course=course).order_by('?')  # Randomize questions
+        # Only allow access to active course in student's department
+        course = QMODEL.Course.objects.get(id=pk, active=True, department_id=student.department_id)
+    except QMODEL.Course.DoesNotExist:
+        messages.error(request, "You are not allowed to view this course or it does not exist.")
+        return HttpResponseRedirect(reverse('student-exam'))
+    questions = QMODEL.Question.objects.filter(course=course)
+    total_questions = questions.count()
+    total_marks = sum(q.marks for q in questions)
+    return render(request, 'student/take_exam.html', {'course': course, 'total_questions': total_questions, 'total_marks': total_marks})
+
+@login_required(login_url='studentlogin')
+@user_passes_test(is_student)
+def start_exam_view(request, pk):
+    try:
+        student = models.Student.objects.get(user_id=request.user.id)
+        # Only allow access to active course in student's department
+        course = QMODEL.Course.objects.get(id=pk, active=True, department_id=student.department_id)
         
-        if not questions.exists():
+        # Get questions and shuffle them randomly
+        questions = list(QMODEL.Question.objects.filter(course=course))
+        
+        # Use Python's random.shuffle for true randomization
+        random.shuffle(questions)
+        
+        # Also shuffle options for each question
+        for question in questions:
+            options = [
+                ('Option1', question.option1),
+                ('Option2', question.option2),
+                ('Option3', question.option3),
+                ('Option4', question.option4)
+            ]
+            random.shuffle(options)
+            
+            # Store shuffled options in the question object
+            question.shuffled_options = options
+            # Find the new position of the correct answer
+            for idx, (option_key, _) in enumerate(options):
+                if option_key == question.answer:
+                    question.correct_answer_index = idx
+                    break
+        
+        if not questions:
             messages.error(request, 'No questions available for this course!')
             return HttpResponseRedirect(reverse('student-exam'))
         
         total_marks = sum(q.marks for q in questions)
         
         # Check if student has already taken this exam
-        student = models.Student.objects.get(user_id=request.user.id)
         existing_result = QMODEL.Result.objects.filter(student=student, exam=course).first()
         if existing_result:
             messages.warning(request, 'You have already taken this exam!')
             return HttpResponseRedirect(reverse('view-result'))
         
+        # Store shuffled question mapping in session for grading
+        request.session['shuffled_questions'] = {
+            'course_id': course.id,
+            'questions': [
+                {
+                    'id': q.id,
+                    'correct_index': q.correct_answer_index
+                } for q in questions
+            ]
+        }
+        
         context = {
-            'course': course, 
+            'course': course,
             'questions': questions,
             'total_marks': total_marks
         }
-        
-        # Debug: Print questions data
-        print(f"Course: {course.course_name}")
-        print(f"Number of questions: {questions.count()}")
-        for i, q in enumerate(questions[:3]):  # Print first 3 questions for debugging
-            print(f"Question {i+1}: {q.question[:50]}...")
-        
-        response = render(request,'student/start_exam.html', context)
+        response = render(request, 'student/start_exam.html', context)
         response.set_cookie('course_id', course.id)
         return response
         
     except QMODEL.Course.DoesNotExist:
-        messages.error(request, 'Course not found!')
+        messages.error(request, 'Course not found or not available for your department!')
         return HttpResponseRedirect(reverse('student-exam'))
     except models.Student.DoesNotExist:
         messages.error(request, 'Student profile not found!')
@@ -122,28 +184,37 @@ def calculate_marks_view(request):
         if not course_id:
             messages.error(request, 'Invalid exam submission!')
             return HttpResponseRedirect(reverse('student-exam'))
-        
         try:
-            course = QMODEL.Course.objects.get(id=course_id)
-            questions = QMODEL.Question.objects.filter(course=course)
+            student = models.Student.objects.get(user_id=request.user.id)
+            # Only allow calculation for active course in student's department
+            course = QMODEL.Course.objects.get(id=course_id, active=True, department_id=student.department_id)
             
+            # Get the shuffled question mapping from session
+            shuffled_data = request.session.get('shuffled_questions', {})
+            if not shuffled_data or shuffled_data.get('course_id') != int(course_id):
+                messages.error(request, 'Exam session expired or invalid!')
+                return HttpResponseRedirect(reverse('student-exam'))
+            
+            questions = QMODEL.Question.objects.filter(course=course)
             total_marks = 0
             correct_answers = 0
             total_questions = questions.count()
             
-            for question in questions:
-                # Get the selected answer from POST data
-                selected_ans = request.POST.get(f'question{question.id}')
-                actual_answer = question.answer
+            # Calculate marks based on shuffled options
+            for question_data in shuffled_data['questions']:
+                question_id = question_data['id']
+                correct_index = question_data['correct_index']
                 
-                if selected_ans and selected_ans == actual_answer:
-                    total_marks += question.marks
-                    correct_answers += 1
+                selected_index = request.POST.get(f'question{question_id}')
+                if selected_index and selected_index.isdigit():
+                    selected_index = int(selected_index)
+                    
+                    if selected_index == correct_index:
+                        question = questions.get(id=question_id)
+                        total_marks += question.marks
+                        correct_answers += 1
             
             # Save the result
-            student = models.Student.objects.get(user_id=request.user.id)
-            
-            # Check if result already exists (prevent duplicate submissions)
             existing_result = QMODEL.Result.objects.filter(student=student, exam=course).first()
             if existing_result:
                 messages.warning(request, 'You have already taken this exam!')
@@ -164,22 +235,21 @@ def calculate_marks_view(request):
                 'percentage': round((total_marks / course.total_marks) * 100, 2) if course.total_marks > 0 else 0
             }
             
-            # Clear cookies
+            # Clear session data and cookies
+            if 'shuffled_questions' in request.session:
+                del request.session['shuffled_questions']
+            
             response = HttpResponseRedirect(reverse('view-result'))
             response.delete_cookie('course_id')
-            
-            # Clear any question cookies that might exist
-            for question in questions:
-                response.delete_cookie(f'question{course.id}_{question.id}')
             
             messages.success(request, f'Exam submitted successfully! You scored {total_marks} marks.')
             return response
             
         except QMODEL.Course.DoesNotExist:
-            messages.error(request, 'Course not found!')
+            messages.error(request, 'Course not found or not available for your department!')
             return HttpResponseRedirect(reverse('student-exam'))
         except Exception as e:
-            messages.error(request, 'An error occurred while processing your exam!')
+            messages.error(request, f'An error occurred while processing your exam: {str(e)}')
             return HttpResponseRedirect(reverse('student-exam'))
     else:
         messages.error(request, 'Invalid request method!')
@@ -189,55 +259,48 @@ def calculate_marks_view(request):
 @user_passes_test(is_student)
 def view_result_view(request):
     student = models.Student.objects.get(user_id=request.user.id)
-    results = QMODEL.Result.objects.filter(student=student).order_by('-date')
-    
-    # Get the latest exam result from session if available
+    # Only show results for active courses in student's department
+    courses_qs = QMODEL.Course.objects.filter(active=True)
+    if student.department_id:
+        courses_qs = courses_qs.filter(department_id=student.department_id)
+    results = QMODEL.Result.objects.filter(student=student, exam__in=courses_qs).order_by('-date')
     latest_result = request.session.pop('exam_result', None)
-    
-    # Calculate performance statistics
     performance_stats = None
     if results:
         total_percentage = 0
         best_percentage = 0
-        
         for result in results:
             if result.exam.total_marks > 0:
                 percentage = (result.marks / result.exam.total_marks) * 100
                 total_percentage += percentage
                 if percentage > best_percentage:
                     best_percentage = percentage
-        
         average_percentage = total_percentage / len(results) if results else 0
-        
         performance_stats = {
             'average_percentage': round(average_percentage, 2),
             'best_percentage': round(best_percentage, 2),
             'total_exams': len(results)
         }
-    
     context = {
         'results': results,
         'latest_result': latest_result,
         'performance_stats': performance_stats
     }
-    return render(request,'student/view_result.html', context)
-
-    
+    return render(request, 'student/view_result.html', context)
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def check_marks_view(request, pk):
-    course = QMODEL.Course.objects.get(id=pk)
     student = models.Student.objects.get(user_id=request.user.id)
-    results = QMODEL.Result.objects.all().filter(exam=course).filter(student=student)
-    
-    # # Debugging: Print what we found
-    # print(f"Course: {course.course_name}")
-    # print(f"Student: {student.get_name}")
-    # print(f"Results count: {results.count()}")
+    try:
+        # Only allow access to active course in student's department
+        course = QMODEL.Course.objects.get(id=pk, active=True, department_id=student.department_id)
+    except QMODEL.Course.DoesNotExist:
+        messages.error(request, "You are not allowed to view this course or it does not exist.")
+        return HttpResponseRedirect(reverse('student-exam'))
+    results = QMODEL.Result.objects.filter(exam=course, student=student)
     for result in results:
         print(f"Result: {result}, Marks: {result.marks}, Exam: {result.exam}")
-    
     return render(request, 'student/check_marks.html', {'results': results})
 
 @login_required(login_url='studentlogin')
@@ -245,28 +308,27 @@ def check_marks_view(request, pk):
 def student_marks_view(request):
     # Get current student
     student = models.Student.objects.get(user_id=request.user.id)
-
-    # All results for this student
-    results_qs = QMODEL.Result.objects.filter(student=student).order_by('-date')
-
+    # Only consider results for active courses in student's department
+    courses_qs = QMODEL.Course.objects.filter(active=True)
+    if student.department_id:
+        courses_qs = courses_qs.filter(department_id=student.department_id)
+    results_qs = QMODEL.Result.objects.filter(student=student, exam__in=courses_qs).order_by('-date')
     # Courses the student has taken (distinct via result records)
     course_ids = results_qs.values_list('exam_id', flat=True)
-    courses = QMODEL.Course.objects.filter(id__in=course_ids)
-
-    # Total available courses in the system
-    total_courses = QMODEL.Course.objects.count()
-
+    courses = QMODEL.Course.objects.filter(id__in=course_ids, active=True)
+    if student.department_id:
+        courses = courses.filter(department_id=student.department_id)
+    # Total available courses in the system for this department and active
+    total_courses = QMODEL.Course.objects.filter(active=True, department_id=student.department_id).count()
     # Latest score percentage if any result exists
     latest_score = None
     if results_qs.exists():
         latest = results_qs.first()
         if latest.exam.total_marks > 0:
             latest_score = round((latest.marks / latest.exam.total_marks) * 100)
-
     context = {
         'courses': courses,
         'total_courses': total_courses,
         'latest_score': latest_score,
     }
-    return render(request,'student/student_marks.html', context)
-  
+    return render(request, 'student/student_marks.html', context)

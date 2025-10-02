@@ -13,7 +13,7 @@ class TeacherSalaryForm(forms.Form):
 class CourseForm(forms.ModelForm):
     class Meta:
         model=models.Course
-        fields=['course_name','question_number','total_marks']
+        fields=['course_name', 'course_code', 'department', 'semester', 'year', 'question_number','total_marks']
 
 class QuestionForm(forms.ModelForm):
     
@@ -26,3 +26,13 @@ class QuestionForm(forms.ModelForm):
         widgets = {
             'question': forms.Textarea(attrs={'rows': 3, 'cols': 50})
         }
+        
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model=models.Department
+        fields=['name']
+        
+class SemesterForm(forms.ModelForm):
+    class Meta:
+        model=models.Semester
+        fields=['name']

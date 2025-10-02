@@ -3,6 +3,9 @@ from django.contrib import admin
 from exam import views
 from teacher.views import logout
 from django.contrib.auth.views import LogoutView,LoginView
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
    
     path('admin/', admin.site.urls),
@@ -23,6 +26,10 @@ urlpatterns = [
     path('adminclick', views.adminclick_view),
     path('adminlogin', LoginView.as_view(template_name='exam/adminlogin.html'),name='adminlogin'),
     path('admin-dashboard', views.admin_dashboard_view,name='admin-dashboard'),
+    path('admin-department', views.admin_department_view,name='admin-department'),
+    path('delete-department/<int:pk>', views.delete_department_view,name='delete-department'),
+    path('update-department/<int:pk>', views.update_department_view,name='update-department'),
+
     path('admin-teacher', views.admin_teacher_view,name='admin-teacher'),
     path('admin-view-teacher', views.admin_view_teacher_view,name='admin-view-teacher'),
     path('update-teacher/<int:pk>', views.update_teacher_view,name='update-teacher'),
@@ -39,12 +46,15 @@ urlpatterns = [
     path('admin-check-marks/<int:pk>', views.admin_check_marks_view,name='admin-check-marks'),
     path('update-student/<int:pk>', views.update_student_view,name='update-student'),
     path('delete-student/<int:pk>', views.delete_student_view,name='delete-student'),
+    path('admin-bulk-upload-students/', views.admin_bulk_upload_students_view, name='admin-bulk-student-upload'),
+    path('download-sample-students-csv', views.download_sample_students_csv, name='download-sample-students-csv'),
 
     path('admin-course', views.admin_course_view,name='admin-course'),
     path('admin-add-course', views.admin_add_course_view,name='admin-add-course'),
     path('admin-view-course', views.admin_view_course_view,name='admin-view-course'),
     path('delete-course/<int:pk>', views.delete_course_view,name='delete-course'),
-
+    path('activate-course/<int:pk>', views.admin_activate_course,name='activate-course'),
+    path('deactivate-course/<int:pk>', views.admin_deactivate_course,name='deactivate-course'),
     path('admin-question', views.admin_question_view,name='admin-question'),
     path('admin-add-question', views.admin_add_question_view,name='admin-add-question'),
     path('admin-bulk-upload-questions', views.admin_bulk_upload_questions_view, name='admin-bulk-upload-questions'),
@@ -55,3 +65,6 @@ urlpatterns = [
 
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,9 +1,11 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from . import models
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 from exam import models as QMODEL
+
+User = get_user_model()
 
 class StudentUserForm(forms.ModelForm):
     class Meta:
@@ -16,7 +18,7 @@ class StudentUserForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model=models.Student
-        fields=['address','mobile','matric_no','profile_pic']
+        fields=['address','mobile','department','profile_pic']
 
 
 class StudentAuthenticationForm(AuthenticationForm):
@@ -28,12 +30,12 @@ class StudentAuthenticationForm(AuthenticationForm):
 
         if identifier and password:
             # Try normal username first
-            user = authenticate(self.request, username=identifier, password=password)
+            user = authenticate(self.request, username=identifier.lower(), password=password)
             if user is None:
                 # Try resolve by matric number -> username
                 try:
-                    student = models.Student.objects.select_related('user').get(matric_no=identifier)
-                    user = authenticate(self.request, username=student.user.username, password=password)
+                    student = models.Student.objects.select_related('user').get(username=identifier)
+                    user = authenticate(self.request, username=student.user.username.lower(), password=password)
                     if user is not None:
                         # Replace the username field so downstream uses actual username
                         self.cleaned_data['username'] = student.user.username

@@ -1,12 +1,14 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class Student(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
     profile_pic= models.ImageField(upload_to='profile_pic/Student/',null=True,blank=True)
     address = models.CharField(max_length=40)
     mobile = models.CharField(max_length=20,null=False)
-    matric_no = models.CharField(max_length=30, null=True, blank=True, unique=True)
+    department = models.ForeignKey('exam.Department', on_delete=models.SET_NULL, null=True, blank=True)
    
     @property
     def get_name(self):
@@ -15,4 +17,4 @@ class Student(models.Model):
     def get_instance(self):
         return self
     def __str__(self):
-        return self.user.first_name
+        return f"{self.user.first_name} - {self.user.username}"
