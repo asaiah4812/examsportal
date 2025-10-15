@@ -770,3 +770,8 @@ def check_results_view(request):
     }
     return render(request, 'exam/check_results.html', context)
 
+# def custom_404_catch_all(request, undefined_path):
+#     """
+#     Catch all undefined URLs and show custom 404 page
+#     """
+#     return render(request, '404.html', status=404)

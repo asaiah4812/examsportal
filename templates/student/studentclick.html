@@ -7,11 +7,11 @@
     <div class="min-h-screen flex items-center justify-center px-4 py-12">
         <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4">
             <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-user-graduate text-white text-2xl"></i>
+                <div class="w-16 h-16  rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <img src="{% static 'image/logo.png' %}" class="rounded-full" alt="Admin">
                 </div>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Hello Student!</h1>
-                <p class="text-gray-600">Welcome to the EduTest Examination System</p>
+                <p class="text-gray-600">Welcome to the School Portal</p>
             </div>
 
             <div class="space-y-4 mb-8">
@@ -41,9 +41,9 @@
             </div>
 
             <div class="space-y-4">
-                <a href="studentsignup" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors inline-block text-center">
+                {% comment %} <a href="studentsignup" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors inline-block text-center">
                     <i class="fas fa-user-plus mr-2"></i> Create Account
-                </a>
+                </a> {% endcomment %}
                 
                 <a href="studentlogin" class="w-full bg-white hover:bg-gray-50 text-indigo-600 border border-indigo-600 py-3 px-6 rounded-lg font-semibold transition-colors inline-block text-center">
                     <i class="fas fa-sign-in-alt mr-2"></i> Login Now

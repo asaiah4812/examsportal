@@ -5,6 +5,7 @@ from teacher.views import logout
 from django.contrib.auth.views import LogoutView,LoginView
 from django.conf import settings
 from django.conf.urls.static import static
+from django.conf.urls import handler404
 
 urlpatterns = [
    
@@ -13,9 +14,9 @@ urlpatterns = [
     path('teacher/',include('teacher.urls')),
     path('student/',include('student.urls')),
     
+    # path('<path:undefined_path>', views.custom_404_catch_all),
 
-
-    path('',views.home_view,name=''),
+    path('',views.home_view,name='home'),
     path('logout', logout, name='logout'),
     path('contactus', views.contactus_view),
     path('check-results', views.check_results_view, name='check-results'),
@@ -65,6 +66,8 @@ urlpatterns = [
 
 
 ]
+
+# handler404 = 'exam.views.custom_404_view'
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

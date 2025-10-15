@@ -64,16 +64,61 @@ def is_student(user):
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def student_dashboard_view(request):
+    # Get student object with related data
+    student = models.Student.objects.select_related('department').get(user_id=request.user.id)
+    
     # Only count courses and questions for student's department and active courses
-    student = models.Student.objects.get(user_id=request.user.id)
     courses_qs = QMODEL.Course.objects.filter(active=True)
     if student.department_id:
         courses_qs = courses_qs.filter(department_id=student.department_id)
+    
     total_course = courses_qs.count()
     total_question = QMODEL.Question.objects.filter(course__in=courses_qs).count()
+    
+    # Get upcoming exams - format them for the template
+    upcoming_exams = []
+    for course in courses_qs:
+        upcoming_exams.append({
+            'id': course.id,
+            'title': course.course_name,
+            'course': course.course_code if course.course_code else course.course_name,
+            'date': course.year,  # Using year as date since no specific date field
+            'duration': 60,  # Default duration, you can modify this
+            'questions': course.question_number
+        })
+    
+    # Get recent results and format them
+    recent_results_db = QMODEL.Result.objects.filter(student=student).select_related('exam').order_by('-date')[:5]
+    recent_results = []
+    for result in recent_results_db:
+        # Calculate percentage
+        percentage = (result.marks / result.exam.total_marks) * 100
+        
+        # Determine grade
+        if percentage >= 70:
+            grade = "A - Excellent"
+        elif percentage >= 60:
+            grade = "B - Very Good"
+        elif percentage >= 50:
+            grade = "C - Good"
+        elif percentage >= 45:
+            grade = "D - Pass"
+        else:
+            grade = "F - Fail"
+            
+        recent_results.append({
+            'title': result.exam.course_name,
+            'course': result.exam.course_code if result.exam.course_code else result.exam.course_name,
+            'score': round(percentage, 1),
+            'grade': grade
+        })
+    
     context = {
+        'student': student,
         'total_course': total_course,
         'total_question': total_question,
+        'upcoming_exams': upcoming_exams,
+        'recent_results': recent_results,
     }
     return render(request, 'student/student_dashboard.html', context=context)
 

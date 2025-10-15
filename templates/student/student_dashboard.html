@@ -3,6 +3,27 @@
 {% block content %}
 
 <div x-show="activeTab === 'dashboard'" class="space-y-6">
+
+    <!-- Student Info Card -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-2">
+        <div class="flex items-center space-x-6">
+            <div class="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-user-graduate text-indigo-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-lg font-semibold text-gray-900">
+                    Matric No: <span class="font-mono text-indigo-700">{{ student.user.username }}</span>
+                </p>
+                <p class="text-gray-600 text-sm">
+                    Department: 
+                    <span class="font-medium text-gray-800">
+                        {% if student.department %}{{ student.department.name }}{% else %}N/A{% endif %}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
